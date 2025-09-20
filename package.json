@@ -1,5 +1,5 @@
 {
-  "name": "filemanager",
+  "name": "file_manager",
   "version": "22.14.0",
   "main": "index.js",
   "scripts": {
