@@ -67,6 +67,15 @@ class User {
   Info() {
     cl(`Name: ${this.#name}, Age: ${this.#age}, Password: ${this.#password}`);
   }
+
+  set userName(value) {
+    const firstLatter = value[0].toUpperCase();
+    const fromSecondLetter = value.slice(1).toLowerCase();
+    this._userName = `${firstLatter}${fromSecondLetter}`;
+  }
+  get userName() {
+    return this._userName;
+  }
 }
 
 const asyncFunc = async () => {
