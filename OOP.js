@@ -96,6 +96,32 @@ class User {
     }
   }
 
+  validation() {
+    const pas = this.#password;
+    const errors = [];
+    const minLength = 12;
+
+    if (!pas) return ["Password is empty"];
+
+    if (pas.length < minLength) {
+      errors.push("Password is too short");
+    }
+    if (!/[A-Z]/.test(pas)) {
+      errors.push("Password must contain at least one uppercase letter");
+    }
+    if (!/[a-z]/.test(pas)) {
+      errors.push("Password must contain at least one lowercase letter");
+    }
+    if (!/[0-9]/.test(pas)) {
+      errors.push("Password must contain at least one digit");
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(pas)) {
+      errors.push("Password must contain at least one special character");
+    }
+
+    return errors.length ? errors : ["Password successfully validated!"];
+  }
+
   set userName(value) {
     const firstLatter = value[0].toUpperCase();
     const fromSecondLetter = value.slice(1).toLowerCase();
