@@ -68,11 +68,15 @@ class User {
     });
   }
 
-  encryptPassword() {
+  cipher() {
+    if (!this.#password) return;
+
     this.#iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv("aes-256-cbc", this.#key, this.#iv);
+
     let encrypted = cipher.update(this.#password, "utf-8", "hex");
     encrypted += cipher.final("hex");
+
     this.#encryptedPassword = encrypted;
     this.#password = null;
   }
@@ -140,7 +144,7 @@ const asyncFunc = async () => {
   await user.getAge();
   await user.getPas();
 
-  user.encryptPassword();
+  user.cipher();
 
   user.Info();
 
