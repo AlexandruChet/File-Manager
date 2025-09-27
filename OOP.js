@@ -15,14 +15,12 @@ class User {
   #age;
   #password;
   #encryptedPassword;
-  #key;
-  #iv;
 
   constructor(name = "", age = 0, password = "") {
     this.#name = name;
     this.#age = age;
     this.#password = password;
-    this.#key = crypto.randomBytes(32);
+    this.#encryptedPassword = this.#encryptedPassword;
   }
 
   getName() {
@@ -69,10 +67,12 @@ class User {
   }
 
   cipher() {
+    const algorithm = "aes-256-cbc";
+    const key = crypto.randomBytes(32);
     if (!this.#password) return;
 
-    this.#iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv("aes-256-cbc", this.#key, this.#iv);
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv(algorithm, key, iv);
 
     let encrypted = cipher.update(this.#password, "utf-8", "hex");
     encrypted += cipher.final("hex");
@@ -83,9 +83,8 @@ class User {
 
   Info() {
     cl(
-      `Name: ${this.#name}, Age: ${this.#age}, Encrypted Password: ${
-        this.#encryptedPassword
-      }`
+      `Name: ${this.#name}, Age: ${this.#age}, Encrypted Password: 
+      ${this.#encryptedPassword}`
     );
 
     const content = this.check();
