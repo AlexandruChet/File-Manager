@@ -83,6 +83,23 @@ class User {
         this.#encryptedPassword
       }`
     );
+
+    const content = this.check();
+    cl(`Allowed content: ${content.join(", ")}`);
+  }
+
+  check() {
+    if (this.#age > 14) {
+      return ["kinds", "content"];
+    } else {
+      return ["adult", "content"];
+    }
+  }
+
+  set userName(value) {
+    const firstLatter = value[0].toUpperCase();
+    const fromSecondLetter = value.slice(1).toLowerCase();
+    this.#name = `${firstLatter}${fromSecondLetter}`;
   }
 
   get userName() {
