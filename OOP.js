@@ -1,4 +1,5 @@
 const readline = require("node:readline");
+const crypto = require("node:crypto");
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -13,11 +14,15 @@ class User {
   #name;
   #age;
   #password;
+  #encryptedPassword;
+  #key;
+  #iv;
 
   constructor(name = "", age = 0, password = "") {
     this.#name = name;
     this.#age = age;
     this.#password = password;
+    this.#key = crypto.randomBytes(32);
   }
 
   getName() {
@@ -63,12 +68,21 @@ class User {
     });
   }
 
-  Info() {
-    cl(`Name: ${this.#name}, Age: ${this.#age}, Password: ${this.#password}`);
+  encryptPassword() {
+    this.#iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv("aes-256-cbc", this.#key, this.#iv);
+    let encrypted = cipher.update(this.#password, "utf-8", "hex");
+    encrypted += cipher.final("hex");
+    this.#encryptedPassword = encrypted;
+    this.#password = null;
   }
 
-  set userName(value) {
-    this.#name = value[0].toUpperCase() + value.slice(1).toLowerCase();
+  Info() {
+    cl(
+      `Name: ${this.#name}, Age: ${this.#age}, Encrypted Password: ${
+        this.#encryptedPassword
+      }`
+    );
   }
 
   get userName() {
@@ -82,6 +96,8 @@ const asyncFunc = async () => {
   await user.getName();
   await user.getAge();
   await user.getPas();
+
+  user.encryptPassword();
 
   user.Info();
 
