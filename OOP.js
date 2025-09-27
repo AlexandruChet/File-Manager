@@ -24,8 +24,8 @@ class User {
     return new Promise((resolve) => {
       rl.question("Write your name: ", (a) => {
         if (typeof a === "string" && a.trim() !== "") {
-          this.#name = a;
-          cl(`${a} this is your name`);
+          this.#name = a[0].toUpperCase() + a.slice(1).toLowerCase();
+          cl(`${this.#name} this is your name`);
         } else {
           cl("Write a correct name");
         }
@@ -51,11 +51,10 @@ class User {
 
   getPas() {
     return new Promise((resolve) => {
-      rl.question("Write your password (numbers only): ", (a) => {
-        const passNum = Number(a);
-        if (!isNaN(passNum)) {
-          this.#password = passNum;
-          cl(`${passNum} this is your password`);
+      rl.question("Write your password: ", (a) => {
+        if (typeof a === "string" && a.trim() !== "") {
+          this.#password = a;
+          cl(`Password saved`);
         } else {
           cl("Write a correct password");
         }
@@ -69,12 +68,11 @@ class User {
   }
 
   set userName(value) {
-    const firstLatter = value[0].toUpperCase();
-    const fromSecondLetter = value.slice(1).toLowerCase();
-    this._userName = `${firstLatter}${fromSecondLetter}`;
+    this.#name = value[0].toUpperCase() + value.slice(1).toLowerCase();
   }
+
   get userName() {
-    return this._userName;
+    return this.#name;
   }
 }
 
