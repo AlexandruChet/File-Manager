@@ -1,10 +1,14 @@
 const readline = require("node:readline");
 const crypto = require("node:crypto");
 const fs = require("node:fs");
+const { randomUUID } = require("crypto");
+
+const prompt = process.cwd();
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
+  prompt: `> ${prompt}`,
 });
 
 function cl(text) {
@@ -20,6 +24,7 @@ class User {
   #boolPassword;
   #boolAge;
   #boolName;
+  #id;
 
   constructor(
     name = "",
@@ -28,7 +33,8 @@ class User {
     encryptedPassword = "",
     boolPassword = false,
     boolAge = false,
-    boolName = false
+    boolName = false,
+    id = 0
   ) {
     this.#name = name;
     this.#age = age;
@@ -38,6 +44,7 @@ class User {
     this.#boolPassword = boolPassword;
     this.#boolAge = boolAge;
     this.#boolName = boolName;
+    this.#id = id;
   }
 
   getName() {
@@ -154,25 +161,40 @@ class User {
       name: this.#name,
       age: this.#age,
       encryptedPassword: this.#encryptedPassword,
+      id: this.#id,
+      createdDate: this.#createdDate.toLocaleString(),
     };
 
-    fs.writeFile(
-      "userInformationSaved.json",
-      JSON.stringify(savedInfoUser, null, 2),
-      (err) => {
-        if (err) {
-          console.error(`Error is: ${err}`);
-        } else {
-          cl("User information saved to file!");
-          console.table(savedInfoUser);
+    const filePath = "userInformationSaved.json";
+
+    let users = [];
+    if (fs.existsSync(filePath)) {
+      const data = fs.readFileSync(filePath, "utf-8");
+      if (data) {
+        try {
+          users = JSON.parse(data);
+        } catch (err) {
+          console.error("Error");
         }
       }
-    );
+    }
+
+    users.push(savedInfoUser);
+
+    fs.writeFile(filePath, JSON.stringify(users, null, 3), (err) => {
+      if (err) {
+        console.error(`Error: ${err}`);
+      } else {
+        cl("This User Saved");
+        console.table(savedInfoUser);
+      }
+    });
   }
 
   createdDate() {
     if (this.#boolName && this.#boolAge && this.#boolPassword) {
       this.#createdDate = new Date();
+      this.#id = randomUUID();
 
       const dateInfo = {
         "Created Date": this.#createdDate.toLocaleString(),
@@ -202,9 +224,9 @@ const asyncFunc = async () => {
   cl(user.validation().join("\n"));
 
   user.cipher();
+  user.createdDate();
   user.Info();
   user.saveUserInFile();
-  user.createdDate();
 
   rl.close();
 };

@@ -111,7 +111,7 @@ function fileManager() {
           break;
         }
         fs.readFile(path.join(road, args[0]), "utf8", (err, data) => {
-          if (err) return console.error("Erro", err);
+          if (err) return console.error("Error", err);
           console.log(data || "(empty file)");
         });
         break;
