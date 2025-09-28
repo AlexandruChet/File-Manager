@@ -1,5 +1,6 @@
 const readline = require("node:readline");
 const crypto = require("node:crypto");
+const fs = require("node:fs");
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -123,6 +124,26 @@ class User {
     }
 
     return errors.length ? errors : ["Password successfully validated!"];
+  }
+
+  saveUserInFile() {
+    const savedInfoUser = {
+      name: this.#name,
+      age: this.#age,
+      encryptedPassword: this.#encryptedPassword,
+    };
+
+    fs.writeFile(
+      "userInformationSaved.json",
+      JSON.stringify(savedInfoUser, null, 2),
+      (err) => {
+        if (err) {
+          console.error(`Error is: ${err}`);
+        } else {
+          cl("User information saved to file!");
+        }
+      }
+    );
   }
 
   set userName(value) {
