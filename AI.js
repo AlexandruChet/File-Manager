@@ -2,38 +2,82 @@ const fs = require("node:fs").promises;
 const { mkdir } = require("node:fs");
 const path = require("node:path");
 const readline = require("node:readline");
+import chalk from "chalk";
 
 let road = process.cwd();
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
-  prompt: `${road}`,
+  prompt: `${chalk.greenBright(road)}> `,
 });
 
 class Anton {
   basicText() {
-    console.log(
-      "✅ Your command was successful! 🎉\n👉 You can type another command or exit with 'exit'. 🚪"
-    );
+    const phrases = [
+      `✅ ${chalk.greenBright("Success! Everything went smoothly. 🚀")}`,
+      `🎉 ${chalk.cyanBright("Done! You can continue your adventure. 🌟")}`,
+      `✔️ ${chalk.blueBright("Task completed! Keep up the great work! 💪")}`,
+      `💡 ${chalk.magentaBright("All set! Ready for the next command. ⚡")}`,
+      `✨ ${chalk.yellowBright("Operation successful! Shine on! ✨")}`,
+    ];
+    console.log(phrases[Math.floor(Math.random() * phrases.length)]);
   }
 
   errorText() {
-    console.log(
-      "⚠️ Oops! Unknown command... 🤔\n💡 Type 'help' 📖 to see available commands.\n✍️ Please try again!"
-    );
+    const phrases = [
+      `⚠️ ${chalk.redBright("Oops! Command not recognized. Try 'help' 📖")}`,
+      `❌ ${chalk.redBright(
+        "Something went wrong. Double-check your input 🧐"
+      )}`,
+      `🚫 ${chalk.redBright(
+        "Error! This command doesn't exist. Try again 🔄"
+      )}`,
+      `💡 ${chalk.yellowBright(
+        "Hint: Use 'help' to see all available commands 🛠️"
+      )}`,
+      `🛑 ${chalk.redBright("Invalid command! Don't worry, you'll get it 💫")}`,
+    ];
+    console.log(phrases[Math.floor(Math.random() * phrases.length)]);
   }
 
   greeting() {
-    console.log(
-      "👋 Hello, I'm Anton — your friendly CLI assistant! 🤖\n✨ Let's make something awesome together!"
-    );
+    const greetings = [
+      `👋 ${chalk.cyanBright(
+        "Hey there! I'm Anton, your friendly CLI assistant 🤖"
+      )}`,
+      `✨ ${chalk.greenBright(
+        "Welcome! Ready to help you code like a pro 💻"
+      )}`,
+      `🚀 ${chalk.magentaBright("Hi! Let's make some magic happen today 🌟")}`,
+      `💫 ${chalk.blueBright("Greetings! I'm here to guide your commands 🧭")}`,
+    ];
+    console.log(greetings[Math.floor(Math.random() * greetings.length)]);
   }
 
   farewell() {
-    console.log(
-      "👋 Goodbye! Thanks for using me. 🌟\n💻 Keep coding and see you next time! 🚀"
-    );
+    const farewells = [
+      `👋 ${chalk.cyanBright("Goodbye! Keep coding and have fun! 🎉")}`,
+      `🌟 ${chalk.greenBright(
+        "Exiting for now. Come back soon for new adventures 💻"
+      )}`,
+      `💻 ${chalk.magentaBright(
+        "Work done! Stay awesome and keep learning 💪"
+      )}`,
+      `✨ ${chalk.blueBright("See you later! More coding awaits 🛠️")}`,
+    ];
+    console.log(farewells[Math.floor(Math.random() * farewells.length)]);
+  }
+
+  infoText(message) {
+    const phrases = [
+      `ℹ️ ${chalk.cyanBright(`Info: ${message} 🔍`)}`,
+      `💡 ${chalk.yellowBright(`Tip: ${message} 📝`)}`,
+      `📝 ${chalk.blueBright(`Note: ${message} 📌`)}`,
+      `🔹 ${chalk.magentaBright(`FYI: ${message} 💭`)}`,
+      `✨ ${chalk.greenBright(`Heads up: ${message} 🌟`)}`,
+    ];
+    console.log(phrases[Math.floor(Math.random() * phrases.length)]);
   }
 }
 
@@ -69,6 +113,7 @@ const workLoop = () => {
         };
 
         console.table(commandList);
+        anton.basicText();
         workLoop();
         break;
 
@@ -77,10 +122,10 @@ const workLoop = () => {
           try {
             const filePath = path.join(road, fileName);
             await fs.writeFile(filePath, "");
-            console.log(`✅ File created: ${filePath}`);
+            anton.infoText(`File created at ${filePath}`);
             anton.basicText();
           } catch (err) {
-            console.error("❌ Error creating file:", err.message);
+            anton.errorText();
           }
           workLoop();
         });
@@ -91,10 +136,10 @@ const workLoop = () => {
           try {
             const dirPath = path.join(road, dirName);
             await fs.mkdir(dirPath, { recursive: true });
-            console.log(`📂 Directory created: ${dirPath}`);
+            anton.infoText(`Directory created at ${dirPath}`);
             anton.basicText();
           } catch (err) {
-            console.error("❌ Error creating directory:", err.message);
+            anton.errorText();
           }
           workLoop();
         });
@@ -107,10 +152,12 @@ const workLoop = () => {
             async (destinationPath) => {
               try {
                 await fs.copyFile(sourcePath, destinationPath);
-                console.log("✅ File successfully copied!");
+                anton.infoText(
+                  `File successfully copied to ${destinationPath}`
+                );
                 anton.basicText();
               } catch (error) {
-                console.error("❌ Error while copying:", error.message);
+                anton.errorText();
               }
               workLoop();
             }
@@ -119,26 +166,25 @@ const workLoop = () => {
         break;
 
       case "search":
-        rl.question("write the name / path of the file", (filePath) => {
+        rl.question("write the name / path of the file: ", (filePath) => {
           rl.question(
-            "write the word that you need to find",
+            "write the word that you need to find: ",
             async (wordToFind) => {
               try {
                 const data = await fs.readFile(filePath, "utf8");
                 const lines = data.split("\n");
-
                 const found = lines.some((line) => line.includes(wordToFind));
 
                 if (found) {
-                  console.log(`word "${wordToFind}" found in: ${filePath}`);
-                  return true;
+                  anton.infoText(`Word "${wordToFind}" found in: ${filePath}`);
                 } else {
-                  console.log(`word "${wordToFind}" not found: ${filePath}`);
-                  return false;
+                  anton.infoText(
+                    `Word "${wordToFind}" not found in: ${filePath}`
+                  );
                 }
+                anton.basicText();
               } catch (error) {
-                console.error(`Error ${filePath}:`, error);
-                throw error;
+                anton.errorText();
               }
               workLoop();
             }
@@ -147,17 +193,18 @@ const workLoop = () => {
         break;
 
       case "write":
-        rl.question("write the path to the file", (filePath) => {
+        rl.question("write the path to the file: ", (filePath) => {
           rl.question(
-            "write the information you want to write",
+            "write the information you want to write: ",
             async (content) => {
               try {
                 await fs.writeFile(filePath, content, "utf8");
-                console.log(`in File ${filePath} written all over `);
+                anton.infoText(`All content written to file ${filePath}`);
+                anton.basicText();
               } catch (error) {
-                console.error("Error:", error);
+                anton.errorText();
               }
-              workLoop()
+              workLoop();
             }
           );
         });
