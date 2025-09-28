@@ -65,12 +65,12 @@ class User {
 
       if (typeof name === "string" && name.trim()) {
         this.#name = name[0].toUpperCase() + name.slice(1).toLowerCase();
-        console.log(`Okay, got it. Your name is ${this.#name}`);
+        cl(`Okay, got it. Your name is ${this.#name}`, "red");
         this.#boolName = true;
         break;
       }
 
-      console.log("Hmm, that doesn't seem right. Try again.");
+      cl("Hmm, that doesn't seem right. Try again.", "red");
     }
   }
 
