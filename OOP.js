@@ -16,12 +16,28 @@ class User {
   #age;
   #password;
   #encryptedPassword;
+  #createdDate;
+  #boolPassword;
+  #boolAge;
+  #boolName;
 
-  constructor(name = "", age = 0, password = "") {
+  constructor(
+    name = "",
+    age = 0,
+    password = "",
+    encryptedPassword = "",
+    boolPassword = false,
+    boolAge = false,
+    boolName = false
+  ) {
     this.#name = name;
     this.#age = age;
     this.#password = password;
-    this.#encryptedPassword = this.#encryptedPassword;
+    this.#encryptedPassword = encryptedPassword;
+    this.#createdDate = new Date();
+    this.#boolPassword = boolPassword;
+    this.#boolAge = boolAge;
+    this.#boolName = boolName;
   }
 
   getName() {
@@ -30,6 +46,7 @@ class User {
         if (typeof a === "string" && a.trim() !== "") {
           this.#name = a[0].toUpperCase() + a.slice(1).toLowerCase();
           cl(`${this.#name} this is your name`);
+          this.#boolName = true;
         } else {
           cl("Write a correct name");
         }
@@ -45,6 +62,7 @@ class User {
         if (!isNaN(ageNum) && ageNum > 0) {
           this.#age = ageNum;
           cl(`${ageNum} is your age`);
+          this.#boolAge = true;
         } else {
           cl("Write a correct age");
         }
@@ -59,6 +77,7 @@ class User {
         if (typeof a === "string" && a.trim() !== "") {
           this.#password = a;
           cl(`Password saved`);
+          this.#boolPassword = true;
         } else {
           cl("Write a correct password");
         }
@@ -89,14 +108,18 @@ class User {
     );
 
     const content = this.check();
-    cl(`Allowed content: ${content.join(", ")}`);
+    cl(`Allowed content: ${content}`);
   }
 
   check() {
-    if (this.#age > 14) {
-      return ["kinds", "content"];
+    if (this.#age < 14) {
+      return "child";
+    } else if (this.#age < 18) {
+      return "teenager";
+    } else if (this.#age <= 100) {
+      return "adult";
     } else {
-      return ["adult", "content"];
+      return "error";
     }
   }
 
@@ -141,9 +164,21 @@ class User {
           console.error(`Error is: ${err}`);
         } else {
           cl("User information saved to file!");
+          console.table(savedInfoUser);
         }
       }
     );
+  }
+
+  createdDate() {
+    if (this.#boolName && this.#boolAge && this.#boolPassword) {
+      this.#createdDate = new Date();
+
+      const dateInfo = {
+        "Created Date": this.#createdDate.toLocaleString(),
+      };
+      console.table(dateInfo);
+    }
   }
 
   set userName(value) {
@@ -164,9 +199,12 @@ const asyncFunc = async () => {
   await user.getAge();
   await user.getPas();
 
-  user.cipher();
+  cl(user.validation().join("\n"));
 
+  user.cipher();
   user.Info();
+  user.saveUserInFile();
+  user.createdDate();
 
   rl.close();
 };
