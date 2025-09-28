@@ -72,32 +72,22 @@ const workLoop = () => {
         workLoop();
         break;
 
-      case "create":
-        if (!args[0]) {
-          console.log("Error");
-          break;
-        }
-
-        rl.question("please write your file name: ", async (fileName) => {
+      case "createFile":
+        rl.question("📄 Please enter file name: ", async (fileName) => {
           try {
             const filePath = path.join(road, fileName);
             await fs.writeFile(filePath, "");
-            console.log(`File created: ${filePath}`);
+            console.log(`✅ File created: ${filePath}`);
             anton.basicText();
           } catch (err) {
-            console.error("Error creating file:", err);
+            console.error("❌ Error creating file:", err.message);
           }
           workLoop();
         });
         break;
 
       case "createDirectory":
-        if (!args[0]) {
-          console.log("Error");
-          break;
-        }
-
-        rl.question("Please write your directory name: ", async (dirName) => {
+        rl.question("📂 Please enter directory name: ", async (dirName) => {
           try {
             const dirPath = path.join(road, dirName);
             await fs.mkdir(dirPath, { recursive: true });
@@ -107,6 +97,69 @@ const workLoop = () => {
             console.error("❌ Error creating directory:", err.message);
           }
           workLoop();
+        });
+        break;
+
+      case "copyFile":
+        rl.question("Enter source file path: ", (sourcePath) => {
+          rl.question(
+            "Enter destination file path: ",
+            async (destinationPath) => {
+              try {
+                await fs.copyFile(sourcePath, destinationPath);
+                console.log("✅ File successfully copied!");
+                anton.basicText();
+              } catch (error) {
+                console.error("❌ Error while copying:", error.message);
+              }
+              workLoop();
+            }
+          );
+        });
+        break;
+
+      case "search":
+        rl.question("write the name / path of the file", (filePath) => {
+          rl.question(
+            "write the word that you need to find",
+            async (wordToFind) => {
+              try {
+                const data = await fs.readFile(filePath, "utf8");
+                const lines = data.split("\n");
+
+                const found = lines.some((line) => line.includes(wordToFind));
+
+                if (found) {
+                  console.log(`word "${wordToFind}" found in: ${filePath}`);
+                  return true;
+                } else {
+                  console.log(`word "${wordToFind}" not found: ${filePath}`);
+                  return false;
+                }
+              } catch (error) {
+                console.error(`Error ${filePath}:`, error);
+                throw error;
+              }
+              workLoop();
+            }
+          );
+        });
+        break;
+
+      case "write":
+        rl.question("write the path to the file", (filePath) => {
+          rl.question(
+            "write the information you want to write",
+            async (content) => {
+              try {
+                await fs.writeFile(filePath, content, "utf8");
+                console.log(`in File ${filePath} written all over `);
+              } catch (error) {
+                console.error("Error:", error);
+              }
+              workLoop()
+            }
+          );
         });
         break;
 
