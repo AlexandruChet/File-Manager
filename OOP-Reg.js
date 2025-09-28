@@ -2,6 +2,7 @@ const readline = require("node:readline");
 const crypto = require("node:crypto");
 const fs = require("node:fs");
 const { randomUUID } = require("crypto");
+const chalk = require("chalk");
 
 const prompt = process.cwd();
 
@@ -11,8 +12,12 @@ const rl = readline.createInterface({
   prompt: `> ${prompt}`,
 });
 
-function cl(text) {
-  console.log(text);
+function cl(text, color = "white") {
+  if (chalk[color]) {
+    console.log(chalk[color](text));
+  } else {
+    console.log(text);
+  }
 }
 
 class User {
@@ -25,6 +30,8 @@ class User {
   #boolAge;
   #boolName;
   #id;
+  #key;
+  #iv;
 
   constructor(
     name = "",
@@ -34,7 +41,9 @@ class User {
     boolPassword = false,
     boolAge = false,
     boolName = false,
-    id = 0
+    id = 0,
+    key = "",
+    iv = ""
   ) {
     this.#name = name;
     this.#age = age;
@@ -45,67 +54,81 @@ class User {
     this.#boolAge = boolAge;
     this.#boolName = boolName;
     this.#id = id;
+    (this.#key = key), (this.#iv = iv);
   }
 
-  getName() {
-    return new Promise((resolve) => {
-      rl.question("Write your name: ", (a) => {
-        if (typeof a === "string" && a.trim() !== "") {
-          this.#name = a[0].toUpperCase() + a.slice(1).toLowerCase();
-          cl(`${this.#name} this is your name`);
-          this.#boolName = true;
-        } else {
-          cl("Write a correct name");
-        }
-        resolve();
-      });
-    });
+  async getName() {
+    while (true) {
+      const name = await new Promise((resolve) =>
+        rl.question("What's your name? ", resolve)
+      );
+
+      if (typeof name === "string" && name.trim()) {
+        this.#name = name[0].toUpperCase() + name.slice(1).toLowerCase();
+        console.log(`Okay, got it. Your name is ${this.#name}`);
+        this.#boolName = true;
+        break;
+      }
+
+      console.log("Hmm, that doesn't seem right. Try again.");
+    }
   }
 
-  getAge() {
-    return new Promise((resolve) => {
-      rl.question("Write your age: ", (a) => {
-        const ageNum = Number(a);
-        if (!isNaN(ageNum) && ageNum > 0) {
-          this.#age = ageNum;
-          cl(`${ageNum} is your age`);
-          this.#boolAge = true;
-        } else {
-          cl("Write a correct age");
-        }
-        resolve();
-      });
-    });
+  async getAge() {
+    while (true) {
+      const a = await new Promise((resolve) =>
+        rl.question("Write your age: ", resolve)
+      );
+      const ageNum = Number(a);
+      if (!isNaN(ageNum) && ageNum > 0) {
+        this.#age = ageNum;
+        cl(`${ageNum} is your age`, "blue");
+        this.#boolAge = true;
+        break;
+      }
+      cl("Write a correct age", "red");
+    }
   }
 
-  getPas() {
-    return new Promise((resolve) => {
-      rl.question("Write your password: ", (a) => {
-        if (typeof a === "string" && a.trim() !== "") {
-          this.#password = a;
-          cl(`Password saved`);
-          this.#boolPassword = true;
-        } else {
-          cl("Write a correct password");
-        }
-        resolve();
-      });
-    });
+  async getPas() {
+    while (true) {
+      const a = await new Promise((resolve) =>
+        rl.question("Write your password: ", resolve)
+      );
+      if (typeof a === "string" && a.trim() !== "") {
+        this.#password = a;
+        cl(`Password saved`, "yellow");
+        this.#boolPassword = true;
+        break;
+      }
+      cl("Write a correct password", "red");
+    }
   }
 
   cipher() {
     const algorithm = "aes-256-cbc";
-    const key = crypto.randomBytes(32);
     if (!this.#password) return;
 
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv(algorithm, key, iv);
+    this.#key = crypto.randomBytes(32);
+    this.#iv = crypto.randomBytes(16);
+
+    const cipher = crypto.createCipheriv(algorithm, this.#key, this.#iv);
 
     let encrypted = cipher.update(this.#password, "utf-8", "hex");
     encrypted += cipher.final("hex");
 
     this.#encryptedPassword = encrypted;
     this.#password = null;
+  }
+
+  decipher() {
+    const algorithm = "aes-256-cbc";
+    if (!this.#encryptedPassword || !this.#key || !this.#iv) return;
+
+    const decipher = crypto.createDecipheriv(algorithm, this.#key, this.#iv);
+    let decrypted = decipher.update(this.#encryptedPassword, "hex", "utf-8");
+    decrypted += decipher.final("utf-8");
+    return decrypted;
   }
 
   Info() {
@@ -115,7 +138,7 @@ class User {
     );
 
     const content = this.check();
-    cl(`Allowed content: ${content}`);
+    cl(`Allowed content: ${content}`, "yellow");
   }
 
   check() {
@@ -185,7 +208,7 @@ class User {
       if (err) {
         console.error(`Error: ${err}`);
       } else {
-        cl("This User Saved");
+        cl("This User Saved", "yellow");
         console.table(savedInfoUser);
       }
     });
