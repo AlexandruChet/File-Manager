@@ -1,6 +1,7 @@
 const fs = require("node:fs").promises;
 const path = require("node:path");
 const readline = require("node:readline");
+const crypto = require("crypto");
 const chalk = require("chalk");
 const { exec } = require("child_process");
 const { isUtf8 } = require("node:buffer");
@@ -74,7 +75,7 @@ const workLoop = () => {
         };
 
         console.table(commandList);
-        anton.basicText();
+        anton.basic();
         workLoop();
         break;
 
@@ -83,8 +84,8 @@ const workLoop = () => {
           try {
             const filePath = path.join(road, fileName);
             await fs.writeFile(filePath, "");
-            anton.infoText(`File created at ${filePath}`);
-            anton.basicText();
+            anton.info(`File created at ${filePath}`);
+            anton.farewell();
           } catch (err) {
             anton.error();
           }
@@ -97,8 +98,8 @@ const workLoop = () => {
           try {
             const dirPath = path.join(road, dirName);
             await fs.mkdir(dirPath, { recursive: true });
-            anton.infoText(`Directory created at ${dirPath}`);
-            anton.basicText();
+            anton.info(`Directory created at ${dirPath}`);
+            anton.farewell();
           } catch (error) {
             console.error(error);
             anton.error();
@@ -114,10 +115,8 @@ const workLoop = () => {
             async (destinationPath) => {
               try {
                 await fs.copyFile(sourcePath, destinationPath);
-                anton.infoText(
-                  `File successfully copied to ${destinationPath}`
-                );
-                anton.basicText();
+                anton.info(`File successfully copied to ${destinationPath}`);
+                anton.farewell();
               } catch (error) {
                 anton.error();
               }
@@ -138,13 +137,11 @@ const workLoop = () => {
                 const found = lines.some((line) => line.includes(wordToFind));
 
                 if (found) {
-                  anton.infoText(`Word "${wordToFind}" found in: ${filePath}`);
+                  anton.info(`Word "${wordToFind}" found in: ${filePath}`);
                 } else {
-                  anton.infoText(
-                    `Word "${wordToFind}" not found in: ${filePath}`
-                  );
+                  anton.info(`Word "${wordToFind}" not found in: ${filePath}`);
                 }
-                anton.basicText();
+                anton.basic();
               } catch (error) {
                 anton.error();
               }
@@ -161,8 +158,8 @@ const workLoop = () => {
             async (content) => {
               try {
                 await fs.writeFile(filePath, content, "utf8");
-                anton.infoText(`All content written to file ${filePath}`);
-                anton.basicText();
+                anton.info(`All content written to file ${filePath}`);
+                anton.farewell();
               } catch (error) {
                 anton.error();
               }
@@ -179,10 +176,10 @@ const workLoop = () => {
             async (content) => {
               try {
                 await fs.appendFile(fileToPath, content, "utf8");
-                anton.infoText(
+                anton.info(
                   `The data was successfully added to the file: ${fileToPath}`
                 );
-                anton.basicText();
+                anton.farewell();
               } catch (error) {
                 anton.error();
                 console.error(error);
@@ -202,9 +199,9 @@ const workLoop = () => {
                   anton.error();
                   console.error(`Error: ${error.message}`);
                 } else {
-                  anton.infoText(`File "${url}" executed successfully`);
+                  anton.info(`File "${url}" executed successfully`);
                   console.log(`Output:\n${stdout}`);
-                  anton.basicText();
+                  anton.info();
                 }
                 workLoop();
               });
@@ -215,7 +212,7 @@ const workLoop = () => {
             }
           } else {
             anton.error();
-            anton.infoText("You can only launch .js files");
+            anton.info("You can only launch .js files");
             workLoop();
           }
         });
@@ -276,13 +273,139 @@ const workLoop = () => {
         });
         break;
 
+      case "serverFile":
+        rl.question("Please write file name: ", async (path) => {
+          try {
+            await fs.appendFile(
+              path,
+              `const express = require('express');
+                const app = express();
+                const port = 3000;
+
+                app.get('/', (req, res) => {
+                  res.send('hello world!');
+                });
+
+                app.listen(port, () => { 
+                  console.log('Server created on PORT', port);
+                });`,
+              "utf8"
+            );
+            if (anton.success) anton.success();
+          } catch (error) {
+            console.error("Error:", error);
+            if (anton?.error) anton.error();
+          }
+          workLoop();
+        });
+        break;
+
+      case "about":
+        console.log(
+          "The file itself is a list of commands and a simulation AI that helps you.\n" +
+            anton.greeting()
+        );
+        break;
+
+      case "cd":
+        rl.question("Please cd to file or folder name: ", async (newPath) => {
+          try {
+            const stat = await fs.lstat(newPath);
+            if (stat.isDirectory()) {
+              road = newPath;
+            } else {
+              anton.error("Not a directory");
+            }
+          } catch {
+            anton.error("Path does not exist");
+          }
+          workLoop();
+        });
+        break;
+
+      case "admin":
+        rl.question("Please write your password: ", async (pas) => {
+          try {
+            let boolAdmin = false;
+            if ((pas = 123)) {
+              console.log("Your Status is Admin");
+              boolAdmin = true;
+            }
+          } catch (error) {
+            console.error(error);
+          }
+          workLoop();
+        });
+        break;
+
+      case "encrypt":
+        rl.question("Please write your password: ", (password) => {
+          try {
+            const validation = (pas) => {
+              const errors = [];
+              const minLength = 12;
+
+              if (!pas) return ["Password is empty"];
+              if (pas.length < minLength) errors.push("Password is too short");
+              if (!/[A-Z]/.test(pas))
+                errors.push(
+                  "Password must contain at least one uppercase letter"
+                );
+              if (!/[a-z]/.test(pas))
+                errors.push(
+                  "Password must contain at least one lowercase letter"
+                );
+              if (!/[0-9]/.test(pas))
+                errors.push("Password must contain at least one digit");
+              if (!/[!@#$%^&*(),.?":{}|<>]/.test(pas))
+                errors.push(
+                  "Password must contain at least one special character"
+                );
+
+              return errors.length
+                ? errors
+                : ["Password successfully validated!"];
+            };
+
+            const encrypt = (pas) => {
+              const algorithm = "aes-256-cbc";
+              const key = crypto.randomBytes(32);
+              const iv = crypto.randomBytes(16);
+
+              const cipher = crypto.createCipheriv(algorithm, key, iv);
+              let encrypted = cipher.update(pas, "utf-8", "hex");
+              encrypted += cipher.final("hex");
+
+              console.log(chalk.greenBright("Encrypted password:"), encrypted);
+              console.log(
+                chalk.blueBright("Key (keep it safe!):"),
+                key.toString("hex")
+              );
+              console.log(
+                chalk.blueBright("IV (keep it safe!):"),
+                iv.toString("hex")
+              );
+            };
+
+            const errors = validation(password);
+            console.log(errors.join("\n"));
+            if (errors[0] === "Password successfully validated!") {
+              encrypt(password);
+            }
+          } catch (error) {
+            console.error(error);
+          }
+          workLoop();
+        });
+        break;
+
       case "exit":
         anton.farewell();
         rl.close();
         break;
 
       default:
-        anton.errorText();
+        anton.error();
         workLoop();
     }
   });
