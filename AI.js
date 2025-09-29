@@ -3,6 +3,7 @@ const path = require("node:path");
 const readline = require("node:readline");
 const chalk = require("chalk");
 const { exec } = require("child_process");
+const { isUtf8 } = require("node:buffer");
 
 let road = process.cwd();
 
@@ -12,34 +13,32 @@ const rl = readline.createInterface({
   prompt: `${chalk.greenBright(road)}> `,
 });
 class Anton {
-  basicText() {
-    console.log(
-      `✅ ${chalk.greenBright("Success! Everything went smoothly. 🚀")}`
-    );
+  static logMessage(icon, colorFn, message) {
+    console.log(`${icon} ${colorFn(message)}`);
   }
 
-  errorText() {
-    console.log(
-      `⚠️ ${chalk.redBright("Oops! Command not recognized. Try 'help' 📖")}`
-    );
+  success(message = "Success! Everything went smoothly. 🚀") {
+    Anton.logMessage("✅", chalk.greenBright, message);
   }
 
-  greeting() {
-    console.log(
-      `👋 ${chalk.cyanBright(
-        "Hey there! I'm Anton, your friendly CLI assistant 🤖"
-      )}`
-    );
+  error(message = "Oops! Command not recognized. Try 'help' 📖") {
+    Anton.logMessage("⚠️", chalk.redBright, message);
   }
 
-  farewell() {
-    console.log(
-      `👋 ${chalk.cyanBright("Goodbye! Keep coding and have fun! 🎉")}`
-    );
+  greeting(message = "Hey there! I'm Anton, your friendly CLI assistant 🤖") {
+    Anton.logMessage("👋", chalk.cyanBright, message);
   }
 
-  infoText(message) {
-    console.log(`ℹ️ ${chalk.cyanBright(`Info: ${message} 🔍`)}`);
+  farewell(message = "Goodbye! Keep coding and have fun! 🎉") {
+    Anton.logMessage("👋", chalk.cyanBright, message);
+  }
+
+  info(message) {
+    Anton.logMessage("ℹ️", chalk.blueBright, `Info: ${message} 🔍`);
+  }
+
+  warning(message) {
+    Anton.logMessage("⚡", chalk.yellowBright, `Warning: ${message} ⚠️`);
   }
 }
 
@@ -47,7 +46,7 @@ const anton = new Anton();
 
 const workLoop = () => {
   rl.question(`${road}> Hello please write your command:  `, (a) => {
-    const [cmd, ...args] = a.trim().split(" ");
+    const [cmd, ...args] = a.trim().split("");
     anton.greeting();
 
     switch (cmd) {
@@ -87,7 +86,7 @@ const workLoop = () => {
             anton.infoText(`File created at ${filePath}`);
             anton.basicText();
           } catch (err) {
-            anton.errorText();
+            anton.error();
           }
           workLoop();
         });
@@ -100,8 +99,9 @@ const workLoop = () => {
             await fs.mkdir(dirPath, { recursive: true });
             anton.infoText(`Directory created at ${dirPath}`);
             anton.basicText();
-          } catch (err) {
-            anton.errorText();
+          } catch (error) {
+            console.error(error);
+            anton.error();
           }
           workLoop();
         });
@@ -119,7 +119,7 @@ const workLoop = () => {
                 );
                 anton.basicText();
               } catch (error) {
-                anton.errorText();
+                anton.error();
               }
               workLoop();
             }
@@ -146,7 +146,7 @@ const workLoop = () => {
                 }
                 anton.basicText();
               } catch (error) {
-                anton.errorText();
+                anton.error();
               }
               workLoop();
             }
@@ -164,7 +164,7 @@ const workLoop = () => {
                 anton.infoText(`All content written to file ${filePath}`);
                 anton.basicText();
               } catch (error) {
-                anton.errorText();
+                anton.error();
               }
               workLoop();
             }
@@ -184,7 +184,7 @@ const workLoop = () => {
                 );
                 anton.basicText();
               } catch (error) {
-                anton.errorText();
+                anton.error();
                 console.error(error);
               }
               workLoop();
@@ -199,7 +199,7 @@ const workLoop = () => {
             try {
               exec(`node ${url}`, (error, stdout) => {
                 if (error) {
-                  anton.errorText();
+                  anton.error();
                   console.error(`Error: ${error.message}`);
                 } else {
                   anton.infoText(`File "${url}" executed successfully`);
@@ -208,16 +208,71 @@ const workLoop = () => {
                 }
                 workLoop();
               });
-            } catch (err) {
-              anton.errorText();
-              console.error(`Unexpected error: ${err}`);
+            } catch (error) {
+              anton.error();
+              console.error(`Unexpected error: ${error}`);
               workLoop();
             }
           } else {
-            anton.errorText();
+            anton.error();
             anton.infoText("You can only launch .js files");
             workLoop();
           }
+        });
+        break;
+
+      case "delete":
+        rl.question("Please write your file name: ", async (fileName) => {
+          try {
+            await fs.unlink(fileName);
+          } catch (error) {
+            console.error(error);
+            anton.error();
+          }
+          workLoop();
+        });
+        break;
+
+      case "show":
+        rl.question(
+          "Write the name of the file whose contents you want to see: ",
+          async (showName) => {
+            try {
+              const data = await fs.readFile(showName, "utf8");
+              console.log(data);
+            } catch (err) {
+              console.error("Error:", err);
+            }
+            workLoop();
+          }
+        );
+        break;
+
+      case "ls":
+        rl.question("Please write your folder name: ", async (lsName) => {
+          try {
+            const files = await fs.readdir(lsName);
+            console.log(files.join("\n"));
+          } catch (error) {
+            console.error("Error:", error);
+            anton.error();
+          }
+          workLoop();
+        });
+        break;
+
+      case "rewrite":
+        rl.question("Write the current file name: ", (firstName) => {
+          rl.question("Write the new file name: ", async (secondName) => {
+            try {
+              await fs.rename(firstName, secondName);
+              console.log(`Renamed ${firstName} → ${secondName}`);
+            } catch (error) {
+              console.error("Error:", error);
+              anton.error();
+            }
+            workLoop();
+          });
         });
         break;
 
