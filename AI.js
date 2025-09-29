@@ -18,28 +18,58 @@ class Anton {
     console.log(`${icon} ${colorFn(message)}`);
   }
 
-  success(message = "Success! Everything went smoothly. 🚀") {
-    Anton.logMessage("✅", chalk.greenBright, message);
+  success() {
+    const messages = [
+      "✅ Success! Everything went smoothly. 🚀",
+      "🎉 Great job, the command completed successfully.",
+      "👌 No errors found, task finished perfectly.",
+    ];
+    messages.forEach((msg) => Anton.logMessage("✅", chalk.greenBright, msg));
   }
 
-  error(message = "Oops! Command not recognized. Try 'help' 📖") {
-    Anton.logMessage("⚠️", chalk.redBright, message);
+  error() {
+    const messages = [
+      "⚠️ Oops! Command not recognized. Try 'help' 📖",
+      "❌ Something went wrong. Maybe a typo?",
+      "🤔 I'm not sure what you mean, please check the command.",
+    ];
+    messages.forEach((msg) => Anton.logMessage("⚠️", chalk.redBright, msg));
   }
 
-  greeting(message = "Hey there! I'm Anton, your friendly CLI assistant 🤖") {
-    Anton.logMessage("👋", chalk.cyanBright, message);
+  greeting() {
+    const messages = [
+      "👋 Hey there! I'm Anton, your friendly CLI assistant 🤖",
+      "😊 Ready to help you with your coding journey.",
+      "💡 Type 'help' to see what I can do.",
+    ];
+    messages.forEach((msg) => Anton.logMessage("👋", chalk.cyanBright, msg));
   }
 
-  farewell(message = "Goodbye! Keep coding and have fun! 🎉") {
-    Anton.logMessage("👋", chalk.cyanBright, message);
+  farewell() {
+    const messages = [
+      "👋 Goodbye! Keep coding and have fun! 🎉",
+      "🛑 Session ended, but I'll be here when you return.",
+      "✨ Don’t forget to take breaks and stay hydrated!",
+    ];
+    messages.forEach((msg) => Anton.logMessage("👋", chalk.cyanBright, msg));
   }
 
-  info(message) {
-    Anton.logMessage("ℹ️", chalk.blueBright, `Info: ${message} 🔍`);
+  info() {
+    const messages = [
+      "ℹ️ Information mode activated.",
+      "📌 Here’s a useful tip for you.",
+      "💬 Remember: learning comes step by step.",
+    ];
+    messages.forEach((msg) => Anton.logMessage("ℹ️", chalk.blueBright, msg));
   }
 
-  warning(message) {
-    Anton.logMessage("⚡", chalk.yellowBright, `Warning: ${message} ⚠️`);
+  warning() {
+    const messages = [
+      "⚡ Warning: proceed with caution.",
+      "⚠️ Something may not be safe here.",
+      "👀 Double-check before continuing.",
+    ];
+    messages.forEach((msg) => Anton.logMessage("⚡", chalk.yellowBright, msg));
   }
 }
 
@@ -47,39 +77,50 @@ const anton = new Anton();
 
 const workLoop = () => {
   rl.question(`${road}> Hello please write your command:  `, (a) => {
-    const [cmd, ...args] = a.trim().split("");
+    const [cmd, ...args] = a.trim().split(" ");
     anton.greeting();
 
     switch (cmd) {
       case "help":
         const commandList = {
-          help: "-> shows all commands",
-          createFile: "-> creates a file",
-          createDirectory: "-> creates a folder",
-          copyFile: "-> copy file",
-          search: "-> searches for a word in files",
-          write: "-> overwrites the contents of the file",
-          writeAppendFile: "-> written at the end of the file",
-          launch: "-> launch file",
-          delete: "-> deleted file",
-          show: "-> show file content",
-          ls: "-> list files and folders",
-          rewrite: "-> rewrite the name",
-          serverFile: "-> automatically starts a server on node js",
+          help: "shows all commands",
+          createFile: "creates a file",
+          createDirectory: "creates a folder",
+          copyFile: "copy file",
+          search: "searches for a word in files",
+          write: "overwrites the contents of the file",
+          writeAppendFile: "written at the end of the file",
+          launch: "launch file",
+          delete: "deleted file",
+          show: "show file content",
+          ls: "list files and folders",
+          rewrite: "rewrite the name",
+          serverFile: "automatically starts a server on Node.js",
           about:
-            "-> The file itself is a list of commands and a simulation AI that helps you.",
-          cd: "-> change directory",
-          admin: "-> attempt to obtain admin status",
-          encrypt: "-> this command encrypt your password",
-          exit: "-> close program",
+            "the file itself is a list of commands and a simulation AI that helps you",
+          cd: "change directory",
+          admin: "attempt to obtain admin status",
+          encrypt: "encrypt your password",
+          tree: "path to file",
+          stat: "stats your file",
+          exit: "close program",
         };
 
-        console.table(commandList);
-        anton.basic();
+        console.log("\n📜 " + chalk.yellowBright.bold("List of Commands:\n"));
+        for (const [cmd, desc] of Object.entries(commandList)) {
+          console.log(
+            `${chalk.cyanBright(cmd.padEnd(15))} ${chalk.greenBright(
+              "→"
+            )} ${chalk.whiteBright(desc)}`
+          );
+        }
+        console.log("");
+
         workLoop();
         break;
 
       case "createFile":
+        anton.info();
         rl.question("📄 Please enter file name: ", async (fileName) => {
           try {
             const filePath = path.join(road, fileName);
@@ -94,6 +135,7 @@ const workLoop = () => {
         break;
 
       case "createDirectory":
+        anton.info();
         rl.question("📂 Please enter directory name: ", async (dirName) => {
           try {
             const dirPath = path.join(road, dirName);
@@ -109,6 +151,7 @@ const workLoop = () => {
         break;
 
       case "copyFile":
+        anton.info();
         rl.question("Enter source file path: ", (sourcePath) => {
           rl.question(
             "Enter destination file path: ",
@@ -127,6 +170,7 @@ const workLoop = () => {
         break;
 
       case "search":
+        anton.info();
         rl.question("write the name / path of the file: ", (filePath) => {
           rl.question(
             "write the word that you need to find: ",
@@ -141,7 +185,6 @@ const workLoop = () => {
                 } else {
                   anton.info(`Word "${wordToFind}" not found in: ${filePath}`);
                 }
-                anton.basic();
               } catch (error) {
                 anton.error();
               }
@@ -152,6 +195,7 @@ const workLoop = () => {
         break;
 
       case "write":
+        anton.info();
         rl.question("write the path to the file: ", (filePath) => {
           rl.question(
             "write the information you want to write: ",
@@ -170,6 +214,7 @@ const workLoop = () => {
         break;
 
       case "writeAppend":
+        anton.info();
         rl.question("write the path to the file: ", (fileToPath) => {
           rl.question(
             "write the information you want to write: ",
@@ -191,6 +236,7 @@ const workLoop = () => {
         break;
 
       case "launch":
+        anton.info();
         rl.question("Write file name (only .js): ", async (url) => {
           if (url.endsWith(".js")) {
             try {
@@ -219,6 +265,7 @@ const workLoop = () => {
         break;
 
       case "delete":
+        anton.warning();
         rl.question("Please write your file name: ", async (fileName) => {
           try {
             await fs.unlink(fileName);
@@ -231,6 +278,7 @@ const workLoop = () => {
         break;
 
       case "show":
+        anton.info();
         rl.question(
           "Write the name of the file whose contents you want to see: ",
           async (showName) => {
@@ -246,6 +294,7 @@ const workLoop = () => {
         break;
 
       case "ls":
+        anton.info();
         rl.question("Please write your folder name: ", async (lsName) => {
           try {
             const files = await fs.readdir(lsName);
@@ -259,6 +308,7 @@ const workLoop = () => {
         break;
 
       case "rewrite":
+        anton.info();
         rl.question("Write the current file name: ", (firstName) => {
           rl.question("Write the new file name: ", async (secondName) => {
             try {
@@ -274,6 +324,7 @@ const workLoop = () => {
         break;
 
       case "serverFile":
+        anton.info();
         rl.question("Please write file name: ", async (path) => {
           try {
             await fs.appendFile(
@@ -301,6 +352,7 @@ const workLoop = () => {
         break;
 
       case "about":
+        anton.greeting();
         console.log(
           "The file itself is a list of commands and a simulation AI that helps you.\n" +
             anton.greeting()
@@ -308,6 +360,7 @@ const workLoop = () => {
         break;
 
       case "cd":
+        anton.info();
         rl.question("Please cd to file or folder name: ", async (newPath) => {
           try {
             const stat = await fs.lstat(newPath);
@@ -324,6 +377,7 @@ const workLoop = () => {
         break;
 
       case "admin":
+        anton.warning();
         rl.question("Please write your password: ", async (pas) => {
           try {
             let boolAdmin = false;
@@ -339,7 +393,8 @@ const workLoop = () => {
         break;
 
       case "encrypt":
-        rl.question("Please write your password: ", (password) => {
+        anton.info();
+        rl.question("Please write your password: ", async (password) => {
           try {
             const validation = (pas) => {
               const errors = [];
@@ -367,31 +422,56 @@ const workLoop = () => {
                 : ["Password successfully validated!"];
             };
 
-            const encrypt = (pas) => {
-              const algorithm = "aes-256-cbc";
-              const key = crypto.randomBytes(32);
-              const iv = crypto.randomBytes(16);
+            const validationResult = validation(password);
+            validationResult.forEach((msg) =>
+              Anton.logMessage("ℹ️", chalk.yellowBright, msg)
+            );
 
-              const cipher = crypto.createCipheriv(algorithm, key, iv);
-              let encrypted = cipher.update(pas, "utf-8", "hex");
-              encrypted += cipher.final("hex");
-
-              console.log(chalk.greenBright("Encrypted password:"), encrypted);
-              console.log(
-                chalk.blueBright("Key (keep it safe!):"),
-                key.toString("hex")
+            if (
+              validationResult.length === 1 &&
+              validationResult[0] === "Password successfully validated!"
+            ) {
+              const hash = crypto
+                .createHash("sha256")
+                .update(password)
+                .digest("hex");
+              Anton.logMessage(
+                "🔒",
+                chalk.greenBright,
+                `Encrypted password: ${hash}`
               );
-              console.log(
-                chalk.blueBright("IV (keep it safe!):"),
-                iv.toString("hex")
-              );
-            };
-
-            const errors = validation(password);
-            console.log(errors.join("\n"));
-            if (errors[0] === "Password successfully validated!") {
-              encrypt(password);
             }
+          } catch (error) {
+            anton.error();
+            console.error(error);
+          }
+          workLoop();
+        });
+        break;
+
+      case "tree":
+        anton.info();
+        rl.question("write file name", async (path) => {
+          try {
+            const pathFile = path.join(__dirname, path);
+            console.log(pathFile);
+          } catch (error) {
+            console.error(error);
+          }
+          workLoop();
+        });
+        break;
+
+      case "stat":
+        anton.info();
+        rl.question("write your file name: ", async (fileName) => {
+          try {
+            const stats = await fs.stat(fileName);
+            console.log("Is file:", stats.isFile());
+            console.log("Is directory:", stats.isDirectory());
+            console.log("File size:", stats.size, "bytes");
+            console.log("Created at:", stats.birthtime);
+            console.log("Last modified:", stats.mtime);
           } catch (error) {
             console.error(error);
           }
