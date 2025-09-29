@@ -1,8 +1,8 @@
 const fs = require("node:fs").promises;
-const { mkdir } = require("node:fs");
 const path = require("node:path");
 const readline = require("node:readline");
-import chalk from "chalk";
+const chalk = require("chalk");
+const { exec } = require("child_process");
 
 let road = process.cwd();
 
@@ -11,73 +11,35 @@ const rl = readline.createInterface({
   output: process.stdout,
   prompt: `${chalk.greenBright(road)}> `,
 });
-
 class Anton {
   basicText() {
-    const phrases = [
-      `✅ ${chalk.greenBright("Success! Everything went smoothly. 🚀")}`,
-      `🎉 ${chalk.cyanBright("Done! You can continue your adventure. 🌟")}`,
-      `✔️ ${chalk.blueBright("Task completed! Keep up the great work! 💪")}`,
-      `💡 ${chalk.magentaBright("All set! Ready for the next command. ⚡")}`,
-      `✨ ${chalk.yellowBright("Operation successful! Shine on! ✨")}`,
-    ];
-    console.log(phrases[Math.floor(Math.random() * phrases.length)]);
+    console.log(
+      `✅ ${chalk.greenBright("Success! Everything went smoothly. 🚀")}`
+    );
   }
 
   errorText() {
-    const phrases = [
-      `⚠️ ${chalk.redBright("Oops! Command not recognized. Try 'help' 📖")}`,
-      `❌ ${chalk.redBright(
-        "Something went wrong. Double-check your input 🧐"
-      )}`,
-      `🚫 ${chalk.redBright(
-        "Error! This command doesn't exist. Try again 🔄"
-      )}`,
-      `💡 ${chalk.yellowBright(
-        "Hint: Use 'help' to see all available commands 🛠️"
-      )}`,
-      `🛑 ${chalk.redBright("Invalid command! Don't worry, you'll get it 💫")}`,
-    ];
-    console.log(phrases[Math.floor(Math.random() * phrases.length)]);
+    console.log(
+      `⚠️ ${chalk.redBright("Oops! Command not recognized. Try 'help' 📖")}`
+    );
   }
 
   greeting() {
-    const greetings = [
+    console.log(
       `👋 ${chalk.cyanBright(
         "Hey there! I'm Anton, your friendly CLI assistant 🤖"
-      )}`,
-      `✨ ${chalk.greenBright(
-        "Welcome! Ready to help you code like a pro 💻"
-      )}`,
-      `🚀 ${chalk.magentaBright("Hi! Let's make some magic happen today 🌟")}`,
-      `💫 ${chalk.blueBright("Greetings! I'm here to guide your commands 🧭")}`,
-    ];
-    console.log(greetings[Math.floor(Math.random() * greetings.length)]);
+      )}`
+    );
   }
 
   farewell() {
-    const farewells = [
-      `👋 ${chalk.cyanBright("Goodbye! Keep coding and have fun! 🎉")}`,
-      `🌟 ${chalk.greenBright(
-        "Exiting for now. Come back soon for new adventures 💻"
-      )}`,
-      `💻 ${chalk.magentaBright(
-        "Work done! Stay awesome and keep learning 💪"
-      )}`,
-      `✨ ${chalk.blueBright("See you later! More coding awaits 🛠️")}`,
-    ];
-    console.log(farewells[Math.floor(Math.random() * farewells.length)]);
+    console.log(
+      `👋 ${chalk.cyanBright("Goodbye! Keep coding and have fun! 🎉")}`
+    );
   }
 
   infoText(message) {
-    const phrases = [
-      `ℹ️ ${chalk.cyanBright(`Info: ${message} 🔍`)}`,
-      `💡 ${chalk.yellowBright(`Tip: ${message} 📝`)}`,
-      `📝 ${chalk.blueBright(`Note: ${message} 📌`)}`,
-      `🔹 ${chalk.magentaBright(`FYI: ${message} 💭`)}`,
-      `✨ ${chalk.greenBright(`Heads up: ${message} 🌟`)}`,
-    ];
-    console.log(phrases[Math.floor(Math.random() * phrases.length)]);
+    console.log(`ℹ️ ${chalk.cyanBright(`Info: ${message} 🔍`)}`);
   }
 }
 
@@ -207,6 +169,55 @@ const workLoop = () => {
               workLoop();
             }
           );
+        });
+        break;
+
+      case "writeAppend":
+        rl.question("write the path to the file: ", (fileToPath) => {
+          rl.question(
+            "write the information you want to write: ",
+            async (content) => {
+              try {
+                await fs.appendFile(fileToPath, content, "utf8");
+                anton.infoText(
+                  `The data was successfully added to the file: ${fileToPath}`
+                );
+                anton.basicText();
+              } catch (error) {
+                anton.errorText();
+                console.error(error);
+              }
+              workLoop();
+            }
+          );
+        });
+        break;
+
+      case "launch":
+        rl.question("Write file name (only .js): ", async (url) => {
+          if (url.endsWith(".js")) {
+            try {
+              exec(`node ${url}`, (error, stdout) => {
+                if (error) {
+                  anton.errorText();
+                  console.error(`Error: ${error.message}`);
+                } else {
+                  anton.infoText(`File "${url}" executed successfully`);
+                  console.log(`Output:\n${stdout}`);
+                  anton.basicText();
+                }
+                workLoop();
+              });
+            } catch (err) {
+              anton.errorText();
+              console.error(`Unexpected error: ${err}`);
+              workLoop();
+            }
+          } else {
+            anton.errorText();
+            anton.infoText("You can only launch .js files");
+            workLoop();
+          }
         });
         break;
 
