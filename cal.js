@@ -10,7 +10,7 @@ const rl = readline.createInterface({
 
 const Calculating = () => {
   rl.question(
-    "You can write +, -, *, /, √ (square root), e (exit):\n> ",
+    "You can write +, -, *, /, √ (square root), ^, e (exit):\n> ",
     (input) => {
       const [cmd] = input.trim().split(" ");
 
@@ -24,6 +24,24 @@ const Calculating = () => {
               console.log(`Result: ${Math.sqrt(number)}\n`);
             }
             Calculating();
+          });
+          break;
+
+        case "^":
+          rl.question("Write the base number: ", (num) => {
+            rl.question("Write the exponent: ", (st) => {
+              const number = parseFloat(num);
+              const exponent = parseFloat(st);
+
+              if (isNaN(number) || isNaN(exponent)) {
+                console.log("Error: One of the inputs is not a number\n");
+              } else {
+                const result = Math.pow(number, exponent);
+                console.log(`Result: ${result}\n`);
+              }
+
+              Calculating();
+            });
           });
           break;
 
@@ -41,16 +59,22 @@ const Calculating = () => {
               } else {
                 let result;
                 switch (cmd) {
-                  case "+": result = number1 + number2; break;
-                  case "-": result = number1 - number2; break;
-                  case "*": result = number1 * number2; break;
-                  case "/": 
+                  case "+":
+                    result = number1 + number2;
+                    break;
+                  case "-":
+                    result = number1 - number2;
+                    break;
+                  case "*":
+                    result = number1 * number2;
+                    break;
+                  case "/":
                     if (number2 === 0) {
                       console.log("Error: Division by zero\n");
                       Calculating();
                       return;
                     }
-                    result = number1 / number2; 
+                    result = number1 / number2;
                     break;
                 }
                 console.log(`Result: ${result}\n`);
