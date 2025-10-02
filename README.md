@@ -461,3 +461,124 @@ and a button to return to the main page.
 * The server runs on port **3000**.
 * Bootstrap CDN is used for styles.
 * All HTML pages are stored in variables in the code (`htmlContent`, `htmlHeader`, `error404html`).
+
+# 🖥 Anton CLI — your console assistant
+
+This project is an interactive CLI (Command Line Interface) on **Node.js**, which simulates an "artificial intelligence" named **Anton** 🤖.
+It allows you to work with files, folders, run JS files, search, encrypt passwords and even create a server on Express.
+
+---
+
+## 🚀 Launch the project
+
+1. Clone or copy the repository.
+2. Install the necessary packages:
+```bash
+npm install chalk
+````
+
+(other modules — `fs`, `path`, `crypto`, `readline` — are built into Node.js).
+3. Run the script:
+
+```bash
+node anton.js
+```
+
+---
+
+## 🤖 Greetings
+
+When launched, Anton will show a friendly message:
+
+```
+👋 Hey there! I'm Anton, your friendly CLI assistant 🤖
+```
+
+---
+
+## 📜 Command list
+
+### 🔑 Basic
+
+* **help** — shows a list of commands
+* **exit** — exits the program
+
+### 📄 Working with files
+
+* **createFile** — creates a file
+* **createDirectory** — creates a folder
+* **copyFile** — copies a file
+* **delete** — deletes a file
+* **rewrite** — renames a file
+* **show** — shows the contents of a file
+* **ls** — shows a list of files in a folder
+* **stat** — shows information about a file (size, dates, whether it is a file/folder)
+
+### ✍️ Writing to files
+
+* **write** — overwrites the contents of a file
+* **writeAppend** — appends text to the end of a file
+
+### 🔍 Search
+
+* **search** — searches for a word in a file
+
+### ⚡ Execution
+
+* **launch** — launches a `.js` file via Node.js
+* **serverFile** — adds code for a simple Express server to the file
+
+### 📂 Navigation
+
+* **cd** — changes the working directory
+* **tree** — shows the absolute path to the file
+
+### 🔐 Security
+
+* **encrypt** — checks the password and its SHA-256 hash
+* **admin** — attempts to obtain administrator status (demo function, password: `123`)
+
+### ℹ️ Additional
+
+* **about** — information about the program
+
+---
+
+## 🎨 Features
+
+* **chalk** is used for color formatting of messages.
+* Anton has "emotional" responses (success, error, warning).
+* There is a basic password check (length, upper/lower case, numbers, special characters).
+* The **serverFile** command allows you to quickly create a file with a ready-made Node.js server.
+
+---
+
+## 📌 Usage example
+
+```
+$ node anton.js
+/home/user> Hello please write your command: help
+
+📜 List of Commands:
+
+help → shows all commands
+createFile → creates a file
+createDirectory → creates a folder
+copyFile → copy file
+search → searches for a word in files
+write → overwrites the contents of the file
+writeAppend → written at the end of the file
+launch → launch file
+delete → deleted file
+show → show file content
+ls → list files and folders
+rewrite → rewrite the name
+serverFile → automatically starts a server on Node.js
+about → the file itself is a list of commands and a simulation AI that helps you
+cd → change directory
+admin → attempt to obtain admin status
+encrypt → encrypt your password
+tree → path to file
+stat → stats your file
+exit → close program
+```
