@@ -374,3 +374,90 @@ timer started! Type the text now.
 Your text is correct! Time taken: 8.35 seconds
 Your text has been saved to text.txt
 ```
+
+# Express.js Simple Website
+
+This project is a simple server on **Node.js** using **Express.js** that serves HTML pages (with Bootstrap) and handles `404 Not Found` errors.
+
+---
+
+## 🚀 Starting the project
+
+1. Clone or copy this repository.
+2. Install dependencies (if Express is not already installed):
+```bash
+npm install express
+````
+
+3. Start the server:
+
+```bash
+node express.js
+```
+
+or, if you are using nodemon:
+
+```bash
+npx nodemon index.js
+```
+4. Open in browser:
+
+```
+http://localhost:3000
+```
+
+---
+
+## 📂 Routes
+
+### `/`
+
+Displays a simple HTML page saying **Hello, world!**.
+
+### `/header`
+
+Displays an HTML page with **Bootstrap navigation** (a header with a menu and a *Sign Up* button).
+
+### `/*` (any other path)
+
+Displays a **404 page** with the message:
+
+```
+Oops! The page you are looking for does not exist.
+```
+
+and a button to return to the main page.
+
+---
+
+## 🛠 Technologies used
+
+* [Node.js](https://nodejs.org/) — a JavaScript runtime.
+* [Express.js](https://expressjs.com/) — a minimalist web framework for Node.js.
+* [Bootstrap 5](https://getbootstrap.com/) — for fast page layout and styling.
+
+---
+
+## 📸 Example pages
+
+### Home (`/`)
+
+* Displays "Hello, world!"
+
+### Header (`/header`)
+
+* Contains a menu with links: Home, About, Services, Contact and a Sign Up button.
+
+### 404
+
+* Big numbers `404`
+* Text: *Oops! The page you are looking for does not exist.*
+* **Go Home** button
+
+---
+
+## 📌 Notes
+
+* The server runs on port **3000**.
+* Bootstrap CDN is used for styles.
+* All HTML pages are stored in variables in the code (`htmlContent`, `htmlHeader`, `error404html`).
