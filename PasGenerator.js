@@ -12,4 +12,16 @@ const generatePasswordLoop = (length) => {
   return randomPassword;
 };
 
-console.log(generatePasswordLoop(12));
+const basicPas = generatePasswordLoop(4);
+console.log("Original Password:", basicPas);
+
+let attempt;
+let tries = 0;
+
+do {
+  attempt = generatePasswordLoop(4);
+  tries++;
+} while (attempt !== basicPas);
+
+console.log("Password selected:", attempt);
+console.log("Number of attempts:", tries);
