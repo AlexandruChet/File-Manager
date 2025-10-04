@@ -30,3 +30,14 @@ const prepareFile = async (url) => {
   const stream = fs.createReadStream(streamPath);
   return { found, ext, stream };
 };
+
+http.createServer(async (req, res) => {
+  const file = await prepareFile(req.url)
+  const statusCode = file.found ? 200 : 404
+  const mimeType = MIME_TYPES[file.ext] || MIME_TYPES.default
+  res.writeHead(statusCode, { 'Content-Type': mimeType })
+  file.stream.pipe(res)
+  console.log(`${res.method} ${res.url} ${statusCode}`)
+}).listen(PORT)
+
+console.log(`Server running at http://127.0.0.1:${PORT}`)
