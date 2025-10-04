@@ -11,8 +11,8 @@ const generatePasswordLoop = (length, symbols) => {
 };
 
 const Loop = async () => {
-  const symbols = "QWERTYUIOPASDFGHJKLZXCVBNM?!@#$%^&*()1234567890_+-=|";
-  const length = 4;
+  const symbols = "QqWwEeRrTtYyUuIiOoPpAaSsDdFfGgHhJjKkLlZzXxCcVvBbNnMm?!@#$%^&*()1234567890_+-=|";
+  const length = 1;
   const basicPas = generatePasswordLoop(length, symbols);
   console.log("Original Password:", basicPas);
 
@@ -62,4 +62,5 @@ const Loop = async () => {
     );
   }
 };
+
 Loop();
