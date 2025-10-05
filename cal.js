@@ -10,15 +10,22 @@ const rl = readline.createInterface({
 });
 
 const menu = `
-${chalk.yellow("Available commands:")}
-  ${chalk.green("+")}   → Addition
-  ${chalk.green("-")}   → Subtraction
-  ${chalk.green("*")}   → Multiplication
-  ${chalk.green("/")}   → Division
-  ${chalk.cyan("√")}   → Square root
-  ${chalk.cyan("^")}   → Power
-  ${chalk.magenta("e")}   → Exit
+${chalk.bold.yellow("📘 Available commands:")}
+  ${chalk.green("+")}     → Addition
+  ${chalk.green("-")}     → Subtraction
+  ${chalk.green("*")}     → Multiplication
+  ${chalk.green("/")}     → Division
+  ${chalk.cyan("√")}     → Square root
+  ${chalk.cyan("^")}     → Power (exponentiation)
+  ${chalk.cyan("pi")}    → Show π number
+  ${chalk.cyan("u")}     → Circle circumference (2πr)
+  ${chalk.green("r")}     → Random number (min–max)
+  ${chalk.blue("time")}  → Show current time and date
+  ${chalk.blue("clear")} → Clear console
+  ${chalk.gray("help")}  → Show this menu
+  ${chalk.magenta("e")}  → Exit
 `;
+
 
 const Calculating = () => {
   rl.question(`${menu}\n${chalk.yellow("> ")} `, (input) => {
@@ -54,6 +61,31 @@ const Calculating = () => {
 
             Calculating();
           });
+        });
+        break;
+
+      case "pi":
+        const piNum = Math.PI;
+        console.log(chalk.green(`π = ${piNum}\n`));
+        Calculating();
+        break;
+
+      case "u":
+        rl.question(chalk.cyan("Please write the radius: "), (radius) => {
+          const rad = parseFloat(radius);
+
+          if (isNaN(rad)) {
+            console.log(chalk.red("❌ Error: Not a number\n"));
+          } else if (rad < 0) {
+            console.log(chalk.red("❌ Error: Radius cannot be negative\n"));
+          } else {
+            const u = 2 * Math.PI * rad;
+            console.log(
+              chalk.green(`✅ Circumference (U) = ${u.toFixed(3)}\n`)
+            );
+          }
+
+          Calculating();
         });
         break;
 
