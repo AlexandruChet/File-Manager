@@ -23,6 +23,15 @@ class Anton {
       "✅ Success! Everything went smoothly. 🚀",
       "🎉 Great job, the command completed successfully.",
       "👌 No errors found, task finished perfectly.",
+      "💪 You nailed it! Task accomplished.",
+      "🏆 Victory! Everything executed flawlessly.",
+      "🌟 Brilliant! No issues detected.",
+      "🎯 Target achieved! Well done.",
+      "✨ Task completed with excellence.",
+      "🚀 All systems go! Success achieved.",
+      "💡 Smart move! Everything worked fine.",
+      "🕹️ Mission accomplished! Keep it up.",
+      "🌈 Smooth execution, like magic!",
     ];
     messages.forEach((msg) => Anton.logMessage("✅", chalk.greenBright, msg));
   }
@@ -32,6 +41,15 @@ class Anton {
       "⚠️ Oops! Command not recognized. Try 'help' 📖",
       "❌ Something went wrong. Maybe a typo?",
       "🤔 I'm not sure what you mean, please check the command.",
+      "💥 Error encountered! Double-check your input.",
+      "🚨 Uh-oh! That didn’t work. Try again carefully.",
+      "🛑 Something broke. Don’t worry, we’ll fix it.",
+      "⚡ Whoops! Looks like a glitch occurred.",
+      "😅 Minor error detected. Adjust your input.",
+      "📛 That command failed. Let's retry.",
+      "🔴 Red alert! Something went wrong.",
+      "👾 System error! Check your command syntax.",
+      "❗ Heads up! That action isn’t valid.",
     ];
     messages.forEach((msg) => Anton.logMessage("⚠️", chalk.redBright, msg));
   }
@@ -41,6 +59,15 @@ class Anton {
       "👋 Hey there! I'm Anton, your friendly CLI assistant 🤖",
       "😊 Ready to help you with your coding journey.",
       "💡 Type 'help' to see what I can do.",
+      "🤗 Hi! Let's make coding fun today.",
+      "🌈 Hello! I’m here to make your tasks easier.",
+      "🚀 Greetings, coder! Let’s launch some commands.",
+      "🎊 Welcome! Let's explore new possibilities.",
+      "😎 Ready to code like a pro? Let’s go!",
+      "✨ Hey! Let’s make your CLI experience awesome.",
+      "🧩 I’m here to assist with any puzzle you face.",
+      "📣 Hello! Your coding companion Anton is online.",
+      "🎯 Hi there! Focus, execute, and conquer tasks.",
     ];
     messages.forEach((msg) => Anton.logMessage("👋", chalk.cyanBright, msg));
   }
@@ -50,6 +77,15 @@ class Anton {
       "👋 Goodbye! Keep coding and have fun! 🎉",
       "🛑 Session ended, but I'll be here when you return.",
       "✨ Don’t forget to take breaks and stay hydrated!",
+      "🌟 See you soon! Keep up the great work.",
+      "💤 Time to rest! I’ll be ready when you come back.",
+      "🎯 Farewell! Remember, every line of code counts.",
+      "🚀 Bye! Keep reaching new coding heights.",
+      "🎉 Until next time! Keep learning and experimenting.",
+      "🧘‍♂️ Take a break! Your brain deserves it.",
+      "📚 Keep practicing! Knowledge grows daily.",
+      "🌈 Stay positive and creative until next session.",
+      "💡 Remember: small steps lead to big progress.",
     ];
     messages.forEach((msg) => Anton.logMessage("👋", chalk.cyanBright, msg));
   }
@@ -59,6 +95,15 @@ class Anton {
       "ℹ️ Information mode activated.",
       "📌 Here’s a useful tip for you.",
       "💬 Remember: learning comes step by step.",
+      "🔍 Did you know? Practice makes perfect!",
+      "🧠 Fun fact: small improvements daily add up.",
+      "📚 Tip: Stay curious and explore new features.",
+      "💡 Helpful hint: consistency beats intensity.",
+      "📝 Quick reminder: organize your tasks well.",
+      "📊 Insight: tracking progress improves skills.",
+      "⚡ Pro tip: refactor often to maintain clarity.",
+      "🔔 Heads up: shortcuts save you time!",
+      "🌟 Motivation: each error is a lesson learned.",
     ];
     messages.forEach((msg) => Anton.logMessage("ℹ️", chalk.blueBright, msg));
   }
@@ -68,6 +113,15 @@ class Anton {
       "⚡ Warning: proceed with caution.",
       "⚠️ Something may not be safe here.",
       "👀 Double-check before continuing.",
+      "🚧 Heads up! This might need your attention.",
+      "⚡ Be careful! Things could go sideways.",
+      "🛑 Alert! Review before taking action.",
+      "❗ Caution! Unexpected behavior possible.",
+      "😬 Warning: check your syntax.",
+      "⚡ Attention: verify inputs before proceeding.",
+      "🔥 Danger: risky operation ahead!",
+      "🚨 Critical notice: potential problem detected.",
+      "🧐 Tip: proceed wisely to avoid errors.",
     ];
     messages.forEach((msg) => Anton.logMessage("⚡", chalk.yellowBright, msg));
   }
@@ -88,10 +142,12 @@ const workLoop = () => {
           createDirectory: "creates a folder",
           copyFile: "copy file",
           search: "searches for a word in files",
+          searchFile: "searches your file",
           write: "overwrites the contents of the file",
           writeAppendFile: "written at the end of the file",
           launch: "launch file",
           delete: "deleted file",
+          deleteDir: "delete dir",
           show: "show file content",
           ls: "list files and folders",
           rewrite: "rewrite the name",
@@ -197,6 +253,23 @@ const workLoop = () => {
         });
         break;
 
+      case "searchFile":
+        rl.question("Please write folder name to search in: ", (folder) => {
+          rl.question("Enter extension (like .js): ", async (ext) => {
+            try {
+              const files = await fs.readdir(folder);
+              const filteredFiles = files.filter(file => file.endsWith(ext));
+
+              anton.success();
+              console.log(filteredFiles);
+            } catch (error) {
+              console.error(error);
+            }
+            workLoop();
+          });
+        });
+        break;
+
       case "write":
         anton.info();
         rl.question("write the path to the file: ", (filePath) => {
@@ -216,7 +289,7 @@ const workLoop = () => {
         });
         break;
 
-      case "writeAppend":
+      case "writeAppendFile":
         anton.info();
         rl.question("write the path to the file: ", (fileToPath) => {
           rl.question(
@@ -278,6 +351,23 @@ const workLoop = () => {
           }
           workLoop();
         });
+        break;
+
+      case "deleteDir":
+        rl.question(
+          "Please write your folder to delete name(road): ",
+          async (path) => {
+            try {
+              await fs.rm(path, { recursive: true });
+              console.log("Folder deleted");
+              anton.success();
+            } catch (error) {
+              console.error(error);
+              anton.error();
+            }
+            workLoop();
+          }
+        );
         break;
 
       case "show":
@@ -507,8 +597,8 @@ const workLoop = () => {
         break;
 
       case "time":
-        anton.info()
-        
+        anton.info();
+
         const now = new Date();
         const hours = now.getHours();
         const minutes = now.getMinutes();
