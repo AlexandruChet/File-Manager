@@ -103,6 +103,9 @@ const workLoop = () => {
           encrypt: "encrypt your password",
           tree: "path to file",
           stat: "stats your file",
+          rPas: "random password",
+          clear: "clear console",
+          time: "time Date",
           exit: "close program",
         };
 
@@ -381,7 +384,7 @@ const workLoop = () => {
         rl.question("Please write your password: ", async (pas) => {
           try {
             let boolAdmin = false;
-            if ((pas = 123)) {
+            if (pas === "123") {
               console.log("Your Status is Admin");
               boolAdmin = true;
             }
@@ -477,6 +480,54 @@ const workLoop = () => {
           }
           workLoop();
         });
+        break;
+
+      case "rPas":
+        const randomPasswordLoop = (length) => {
+          const symbols =
+            "QqWwEeRrTtYyUuIiOoPpAaSsDdFfGgHhJjKkLlZzXxCcVvBbNnMm1234567890!@#$%^&*()_+|=-";
+          let randomPassword = "";
+
+          for (let i = 0; i < length; i++) {
+            randomPassword += symbols[crypto.randomInt(symbols.length)];
+          }
+
+          return randomPassword;
+        };
+
+        const password = randomPasswordLoop(12);
+        console.log(chalk.greenBright(`🔐 Your random password: ${password}`));
+        workLoop();
+        break;
+
+      case "clear":
+        console.clear();
+        anton.info();
+        workLoop();
+        break;
+
+      case "time":
+        anton.info()
+        
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+
+        const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
+        const formattedSeconds = seconds < 10 ? "0" + seconds : seconds;
+
+        const currentTime = `${hours}:${formattedMinutes}:${formattedSeconds}`;
+
+        console.log(chalk.cyanBright(`🕒 Current time: ${currentTime}`));
+
+        const date = new Date();
+        const formattedDate = date.toISOString().split("T")[0];
+
+        console.log(chalk.cyanBright(`📅 date: ${formattedDate}`));
+
+        workLoop();
+
         break;
 
       case "exit":

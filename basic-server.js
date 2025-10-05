@@ -18,6 +18,7 @@ const MIME_TYPES = {
   jpeg: "image/jpeg",
   svg: "image/svg+xml",
 };
+
 const prepareFile = async (url) => {
   const paths = [STATIC_PATH, url];
   if (url.endsWith("/")) paths.push("index.html");
