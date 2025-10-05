@@ -20,6 +20,7 @@ ${chalk.bold.yellow("📘 Available commands:")}
   ${chalk.cyan("pi")}    → Show π number
   ${chalk.cyan("u")}     → Circle circumference (2πr)
   ${chalk.green("r")}     → Random number (min–max)
+  ${chalk.green("%")}     → Percent for
   ${chalk.blue("time")}  → Show current time and date
   ${chalk.blue("clear")} → Clear console
   ${chalk.gray("help")}  → Show this menu
@@ -116,6 +117,87 @@ const Calculating = () => {
             Calculating();
           }
         );
+        break;
+
+      case "time":
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+
+        const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
+        const formattedSeconds = seconds < 10 ? "0" + seconds : seconds;
+
+        const currentTime = `${hours}:${formattedMinutes}:${formattedSeconds}`;
+
+        console.log(chalk.cyanBright(`🕒 Current time: ${currentTime}`));
+
+        const date = new Date();
+        const formattedDate = date.toISOString().split("T")[0];
+
+        console.log(chalk.cyanBright(`📅 date: ${formattedDate}`));
+
+        Calculating();
+        break;
+
+      case "%":
+        rl.question(
+          "Choose calculation: a = find part, b = find percent: ",
+          (answer) => {
+            if (answer === "a") {
+              rl.question("Please write your sum: ", (sumInput) => {
+                rl.question("Please write percent: ", (percentInput) => {
+                  const sum = parseFloat(sumInput);
+                  const percent = parseFloat(percentInput);
+
+                  if (isNaN(sum) || isNaN(percent)) {
+                    console.log(
+                      chalk.red("❌ Error: One of the inputs is not a number\n")
+                    );
+                  } else {
+                    const result = (sum * percent) / 100;
+                    console.log(
+                      chalk.green(`${percent}% of ${sum} = ${result}\n`)
+                    );
+                  }
+                  Calculating();
+                });
+              });
+            } else if (answer === "b") {
+              rl.question("Please write your part: ", (partInput) => {
+                rl.question("Please write total sum: ", (totalInput) => {
+                  const part = parseFloat(partInput);
+                  const total = parseFloat(totalInput);
+
+                  if (isNaN(part) || isNaN(total)) {
+                    console.log(
+                      chalk.red("❌ Error: One of the inputs is not a number\n")
+                    );
+                  } else {
+                    const percent = (part / total) * 100;
+                    console.log(
+                      chalk.green(`${part} is ${percent}% of ${total}\n`)
+                    );
+                  }
+                  Calculating();
+                });
+              });
+            } else {
+              console.log(chalk.red("❌ Error: Unknown option\n"));
+              Calculating();
+            }
+          }
+        );
+        break;
+
+      case "clear":
+        console.clear();
+        Calculating();
+        break;
+
+      case "help":
+        console.log(menu);
+        Calculating();
         break;
 
       case "+":
