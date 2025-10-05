@@ -26,7 +26,6 @@ ${chalk.bold.yellow("📘 Available commands:")}
   ${chalk.magenta("e")}  → Exit
 `;
 
-
 const Calculating = () => {
   rl.question(`${menu}\n${chalk.yellow("> ")} `, (input) => {
     const [cmd] = input.trim().split(" ");
@@ -87,6 +86,36 @@ const Calculating = () => {
 
           Calculating();
         });
+        break;
+
+      case "r":
+        rl.question(
+          chalk.cyan("Please write your random password length: "),
+          (input) => {
+            const length = parseInt(input);
+
+            if (isNaN(length) || length <= 0) {
+              console.log(
+                chalk.red("❌ Error: Please enter a valid positive number\n")
+              );
+              Calculating();
+              return;
+            }
+
+            const symbols =
+              "QqWwEeRrTtYyUuIiOoPpAaSsDdFfGgHhJjKkLlZzXxCcVvBbNnMm1234567890!@#$%^&*()_+|=-";
+
+            let randomPassword = "";
+
+            for (let i = 0; i < length; i++) {
+              randomPassword +=
+                symbols[Math.floor(Math.random() * symbols.length)];
+            }
+
+            console.log(chalk.green(`🎲 Random password: ${randomPassword}\n`));
+            Calculating();
+          }
+        );
         break;
 
       case "+":
