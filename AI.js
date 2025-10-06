@@ -16,12 +16,41 @@ const rl = readline.createInterface({
   output: process.stdout,
   prompt: `${chalk.greenBright(road)}> `,
 });
+
 class Anton {
-  static logMessage(type, colorFn, message) {
-    const line = "-".repeat(60);
-    console.log(colorFn(`\n${line}`));
-    console.log(colorFn(`${type} ${message}`));
-    console.log(colorFn(line + "\n"));
+  static logMessage(type, colorFn, message, width = 60) {
+    const lines = message.split("\n");
+    const maxMessageLength = Math.max(...lines.map((line) => line.length));
+    const finalWidth = Math.max(width, maxMessageLength + 4);
+
+    const topLeft = "╭";
+    const topRight = "╮";
+    const bottomLeft = "╰";
+    const bottomRight = "╯";
+    const horizontal = "─";
+    const vertical = "│";
+
+    console.log(colorFn(topLeft + horizontal.repeat(finalWidth) + topRight));
+
+    const header = type
+      .padStart(Math.floor((finalWidth + type.length) / 2))
+      .padEnd(finalWidth);
+    console.log(colorFn.bgBlackBright.white(`${vertical}${header}${vertical}`));
+
+    console.log(colorFn(vertical + horizontal.repeat(finalWidth) + vertical));
+
+    lines.forEach((line) => {
+      const paddedLine = line
+        .padStart(Math.floor((finalWidth + line.length) / 2))
+        .padEnd(finalWidth);
+      console.log(colorFn(`${vertical}${paddedLine}${vertical}`));
+    });
+
+    console.log(
+      colorFn(bottomLeft + horizontal.repeat(finalWidth) + bottomRight)
+    );
+
+    console.log(chalk.blackBright(" ".repeat(finalWidth + 2) + "▗"));
   }
 
   success() {
@@ -86,7 +115,7 @@ class Anton {
       "Remember: each line of code counts. 💡",
     ];
     messages.forEach((msg) =>
-      Anton.logMessage("[ FAREWELL ]", chalk.cyanBright, msg)
+      Anton.logMessage("[ FAREWELL ]", chalk.magentaBright, msg)
     );
   }
 }
@@ -133,15 +162,27 @@ const workLoop = () => {
           exit: "close program",
         };
 
-        console.log("\n📜 " + chalk.yellowBright.bold("List of Commands:\n"));
+        const width = 80;
+        const horizontalLine = "═".repeat(width);
+
+        console.log(chalk.magentaBright(`\n╔${horizontalLine}╗`));
+        console.log(
+          chalk.magentaBright(
+            `║${" Anton CLI - Commands "
+              .padStart((width + 22) / 2)
+              .padEnd(width)}║`
+          )
+        );
+        console.log(chalk.magentaBright(`╠${horizontalLine}╣`));
+
         for (const [cmd, desc] of Object.entries(commandList)) {
-          console.log(
-            `${chalk.cyanBright(cmd.padEnd(15))} ${chalk.greenBright(
-              "→"
-            )} ${chalk.whiteBright(desc)}`
-          );
+          const line = `${chalk.cyanBright(cmd.padEnd(20))} ${chalk.greenBright(
+            "→"
+          )} ${chalk.whiteBright(desc)}`;
+          console.log(chalk.magentaBright(`║ ${line.padEnd(width - 2)}║`));
         }
-        console.log("");
+
+        console.log(chalk.magentaBright(`╚${horizontalLine}╝\n`));
 
         workLoop();
         break;
