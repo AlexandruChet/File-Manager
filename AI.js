@@ -5,6 +5,9 @@ const crypto = require("crypto");
 const chalk = require("chalk");
 const { exec } = require("child_process");
 const { isUtf8 } = require("node:buffer");
+const { pipeline } = require("node:stream");
+const { promisify } = require("node:util");
+const { createGzip } = require("node:zlib");
 
 let road = process.cwd();
 
@@ -14,116 +17,77 @@ const rl = readline.createInterface({
   prompt: `${chalk.greenBright(road)}> `,
 });
 class Anton {
-  static logMessage(icon, colorFn, message) {
-    console.log(`${icon} ${colorFn(message)}`);
+  static logMessage(type, colorFn, message) {
+    const line = "-".repeat(60);
+    console.log(colorFn(`\n${line}`));
+    console.log(colorFn(`${type} ${message}`));
+    console.log(colorFn(line + "\n"));
   }
 
   success() {
     const messages = [
-      "✅ Success! Everything went smoothly. 🚀",
-      "🎉 Great job, the command completed successfully.",
-      "👌 No errors found, task finished perfectly.",
-      "💪 You nailed it! Task accomplished.",
-      "🏆 Victory! Everything executed flawlessly.",
-      "🌟 Brilliant! No issues detected.",
-      "🎯 Target achieved! Well done.",
-      "✨ Task completed with excellence.",
-      "🚀 All systems go! Success achieved.",
-      "💡 Smart move! Everything worked fine.",
-      "🕹️ Mission accomplished! Keep it up.",
-      "🌈 Smooth execution, like magic!",
+      "Everything went smoothly. Keep up the great work! 🚀",
+      "Task completed successfully. Well done! 🎯",
+      "All systems go! You're on fire. 🔥",
     ];
-    messages.forEach((msg) => Anton.logMessage("✅", chalk.greenBright, msg));
+    messages.forEach((msg) =>
+      Anton.logMessage("[ SUCCESS ]", chalk.greenBright, msg)
+    );
   }
 
   error() {
     const messages = [
-      "⚠️ Oops! Command not recognized. Try 'help' 📖",
-      "❌ Something went wrong. Maybe a typo?",
-      "🤔 I'm not sure what you mean, please check the command.",
-      "💥 Error encountered! Double-check your input.",
-      "🚨 Uh-oh! That didn’t work. Try again carefully.",
-      "🛑 Something broke. Don’t worry, we’ll fix it.",
-      "⚡ Whoops! Looks like a glitch occurred.",
-      "😅 Minor error detected. Adjust your input.",
-      "📛 That command failed. Let's retry.",
-      "🔴 Red alert! Something went wrong.",
-      "👾 System error! Check your command syntax.",
-      "❗ Heads up! That action isn’t valid.",
+      "Command failed! Check your input. ❌",
+      "Oops! Something went wrong. ⚠️",
+      "Error detected. Review your syntax. 🛑",
     ];
-    messages.forEach((msg) => Anton.logMessage("⚠️", chalk.redBright, msg));
-  }
-
-  greeting() {
-    const messages = [
-      "👋 Hey there! I'm Anton, your friendly CLI assistant 🤖",
-      "😊 Ready to help you with your coding journey.",
-      "💡 Type 'help' to see what I can do.",
-      "🤗 Hi! Let's make coding fun today.",
-      "🌈 Hello! I’m here to make your tasks easier.",
-      "🚀 Greetings, coder! Let’s launch some commands.",
-      "🎊 Welcome! Let's explore new possibilities.",
-      "😎 Ready to code like a pro? Let’s go!",
-      "✨ Hey! Let’s make your CLI experience awesome.",
-      "🧩 I’m here to assist with any puzzle you face.",
-      "📣 Hello! Your coding companion Anton is online.",
-      "🎯 Hi there! Focus, execute, and conquer tasks.",
-    ];
-    messages.forEach((msg) => Anton.logMessage("👋", chalk.cyanBright, msg));
-  }
-
-  farewell() {
-    const messages = [
-      "👋 Goodbye! Keep coding and have fun! 🎉",
-      "🛑 Session ended, but I'll be here when you return.",
-      "✨ Don’t forget to take breaks and stay hydrated!",
-      "🌟 See you soon! Keep up the great work.",
-      "💤 Time to rest! I’ll be ready when you come back.",
-      "🎯 Farewell! Remember, every line of code counts.",
-      "🚀 Bye! Keep reaching new coding heights.",
-      "🎉 Until next time! Keep learning and experimenting.",
-      "🧘‍♂️ Take a break! Your brain deserves it.",
-      "📚 Keep practicing! Knowledge grows daily.",
-      "🌈 Stay positive and creative until next session.",
-      "💡 Remember: small steps lead to big progress.",
-    ];
-    messages.forEach((msg) => Anton.logMessage("👋", chalk.cyanBright, msg));
+    messages.forEach((msg) =>
+      Anton.logMessage("[ ERROR ]", chalk.redBright, msg)
+    );
   }
 
   info() {
     const messages = [
-      "ℹ️ Information mode activated.",
-      "📌 Here’s a useful tip for you.",
-      "💬 Remember: learning comes step by step.",
-      "🔍 Did you know? Practice makes perfect!",
-      "🧠 Fun fact: small improvements daily add up.",
-      "📚 Tip: Stay curious and explore new features.",
-      "💡 Helpful hint: consistency beats intensity.",
-      "📝 Quick reminder: organize your tasks well.",
-      "📊 Insight: tracking progress improves skills.",
-      "⚡ Pro tip: refactor often to maintain clarity.",
-      "🔔 Heads up: shortcuts save you time!",
-      "🌟 Motivation: each error is a lesson learned.",
+      "Information mode activated. ℹ️",
+      "Tip: Stay curious and explore new features.",
+      "Reminder: small steps lead to big progress.",
     ];
-    messages.forEach((msg) => Anton.logMessage("ℹ️", chalk.blueBright, msg));
+    messages.forEach((msg) =>
+      Anton.logMessage("[ INFO ]", chalk.blueBright, msg)
+    );
   }
 
   warning() {
     const messages = [
-      "⚡ Warning: proceed with caution.",
-      "⚠️ Something may not be safe here.",
-      "👀 Double-check before continuing.",
-      "🚧 Heads up! This might need your attention.",
-      "⚡ Be careful! Things could go sideways.",
-      "🛑 Alert! Review before taking action.",
-      "❗ Caution! Unexpected behavior possible.",
-      "😬 Warning: check your syntax.",
-      "⚡ Attention: verify inputs before proceeding.",
-      "🔥 Danger: risky operation ahead!",
-      "🚨 Critical notice: potential problem detected.",
-      "🧐 Tip: proceed wisely to avoid errors.",
+      "Warning! Proceed with caution. ⚡",
+      "Heads up! This may need your attention. 🚧",
+      "Alert! Unexpected behavior possible. ⚠️",
     ];
-    messages.forEach((msg) => Anton.logMessage("⚡", chalk.yellowBright, msg));
+    messages.forEach((msg) =>
+      Anton.logMessage("[ WARNING ]", chalk.yellowBright, msg)
+    );
+  }
+
+  greeting() {
+    const messages = [
+      "Hey there! I'm Anton, your friendly CLI assistant. 🤖",
+      "Type 'help' to see available commands. 💡",
+      "Ready to make your coding journey fun! 🚀",
+    ];
+    messages.forEach((msg) =>
+      Anton.logMessage("[ GREETING ]", chalk.cyanBright, msg)
+    );
+  }
+
+  farewell() {
+    const messages = [
+      "Goodbye! Keep coding and have fun! 🎉",
+      "See you soon! Your coding companion is waiting. 🌟",
+      "Remember: each line of code counts. 💡",
+    ];
+    messages.forEach((msg) =>
+      Anton.logMessage("[ FAREWELL ]", chalk.cyanBright, msg)
+    );
   }
 }
 
@@ -165,6 +129,7 @@ const workLoop = () => {
           time: "time Date",
           open: "open your file in vs code or another program",
           fileWeight: "show file weight",
+          compress: "compress file",
           exit: "close program",
         };
 
@@ -770,6 +735,37 @@ const workLoop = () => {
             workLoop();
           }
         );
+        break;
+
+      case "compress":
+        anton.info();
+        rl.question("write road to file: ", (road) => {
+          rl.question("write your compressed file", async (folder) => {
+            try {
+              const compress = async (toCompress, afterCompress) => {
+                const gzip = createGzip();
+
+                const source = createReadStream(toCompress);
+                const destination = createWriteStream(afterCompress);
+
+                await pipe(source, gzip, destination);
+
+                if (!compressedPath.endsWith(".gz")) {
+                  compressedPath += ".gz";
+                }
+
+                console.log(
+                  `✅ File "${toCompress}" compressed into "${afterCompress}"`
+                );
+              };
+              compress(road, folder);
+            } catch (error) {
+              anton.error();
+              console.error(error);
+            }
+            workLoop();
+          });
+        });
         break;
 
       case "exit":
