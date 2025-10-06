@@ -141,6 +141,7 @@ const workLoop = () => {
           createFile: "creates a file",
           createDirectory: "creates a folder",
           copyFile: "copy file",
+          copyAllInDirectory: "copy directory recursive",
           search: "searches for a word in files",
           searchFile: "searches your file",
           write: "overwrites the contents of the file",
@@ -228,6 +229,43 @@ const workLoop = () => {
             }
           );
         });
+        break;
+
+      case "copyAllInDirectory":
+        anton.info();
+        rl.question(
+          "write your original folder road to you need copy: ",
+          (folder) => {
+            rl.question("write your new folder road: ", async (destination) => {
+              try {
+                const copyFolderRecursive = async (original, dest) => {
+                  await fs.mkdir(dest, { recursive: true });
+                  const elements = await fs.readdir(original, {
+                    withFileTypes: true,
+                  });
+
+                  for (const e of elements) {
+                    const folderPath = path.join(original, e.name);
+                    const destPath = path.join(dest, e.name);
+
+                    if (e.isDirectory()) {
+                      await copyFolderRecursive(folderPath, destPath);
+                    } else if (e.isFile()) {
+                      await fs.copyFile(folderPath, destPath);
+                    }
+                  }
+                };
+
+                await copyFolderRecursive(folder, destination);
+                anton.success();
+              } catch (error) {
+                anton.error();
+                console.error(error);
+              }
+              workLoop();
+            });
+          }
+        );
         break;
 
       case "search":
