@@ -163,6 +163,7 @@ const workLoop = () => {
           clear: "clear console",
           time: "time Date",
           open: "open your file in vs code or another program",
+          fileWeight: "show file weight",
           exit: "close program",
         };
 
@@ -675,6 +676,62 @@ const workLoop = () => {
             workLoop();
           });
         });
+        break;
+
+      case "fileWeight":
+        anton.info();
+        rl.question(
+          "Enter file or folder name (path): ",
+          async (fileTarget) => {
+            try {
+              const targetPath = path.isAbsolute(fileTarget)
+                ? fileTarget
+                : path.join(road, fileTarget);
+
+              const getSize = async (e) => {
+                const stats = await fs.stat(e);
+
+                if (stats.isFile()) {
+                  return stats.size;
+                } else if (stats.isDirectory()) {
+                  const files = await fs.readdir(e);
+                  const sizes = await Promise.all(
+                    files.map(async (file) => getSize(path.join(e, file)))
+                  );
+                  return sizes.reduce((a, b) => a + b, 0);
+                }
+                return 0;
+              };
+
+              const totalSize = await getSize(targetPath);
+              anton.success();
+
+              const formatSize = (bytes) => {
+                const units = ["B", "KB", "MB", "GB", "TB"];
+                let size = bytes;
+                let unitIndex = 0;
+
+                while (size >= 1024 && unitIndex < units.length - 1) {
+                  size /= 1024;
+                  unitIndex++;
+                }
+
+                return `${size.toFixed(2)} ${units[unitIndex]}`;
+              };
+
+              console.log(
+                chalk.greenBright(
+                  `📦 Total size of "${fileTarget}": ${formatSize(totalSize)}`
+                )
+              );
+            } catch (error) {
+              anton.error();
+              console.error(chalk.redBright(`❌ ${error.message}`));
+            }
+
+            workLoop();
+          }
+        );
         break;
 
       case "exit":
