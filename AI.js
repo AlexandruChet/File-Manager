@@ -162,6 +162,7 @@ const workLoop = () => {
           rPas: "random password",
           clear: "clear console",
           time: "time Date",
+          open: "open your file in vs code or another program",
           exit: "close program",
         };
 
@@ -258,7 +259,7 @@ const workLoop = () => {
           rl.question("Enter extension (like .js): ", async (ext) => {
             try {
               const files = await fs.readdir(folder);
-              const filteredFiles = files.filter(file => file.endsWith(ext));
+              const filteredFiles = files.filter((file) => file.endsWith(ext));
 
               anton.success();
               console.log(filteredFiles);
@@ -615,9 +616,65 @@ const workLoop = () => {
         const formattedDate = date.toISOString().split("T")[0];
 
         console.log(chalk.cyanBright(`📅 date: ${formattedDate}`));
-
         workLoop();
+        break;
 
+      case "open":
+        anton.info();
+        rl.question("Write your file name: ", async (file) => {
+          try {
+            const filePath = path.isAbsolute(file)
+              ? file
+              : path.join(road, file);
+
+            exec(`start "" "${filePath}"`, (error) => {
+              if (error) {
+                anton.error();
+                console.error(`❌ Error opening file: ${error.message}`);
+              } else {
+                anton.success();
+                console.log(
+                  chalk.greenBright(`✅ File "${file}" opened successfully.`)
+                );
+              }
+              workLoop();
+            });
+          } catch (error) {
+            anton.error();
+            console.error(error);
+            workLoop();
+          }
+        });
+        break;
+
+      case "move":
+        anton.info();
+        rl.question("Enter source path: ", (src) => {
+          rl.question("Enter destination path: ", async (destination) => {
+            try {
+              const sourcePath = path.isAbsolute(src)
+                ? src
+                : path.join(road, src);
+              const destinationPath = path.isAbsolute(destination)
+                ? destination
+                : path.join(road, destination);
+
+              await fs.rename(sourcePath, destinationPath);
+
+              anton.success();
+              console.log(
+                chalk.greenBright(
+                  `📦 Moved: ${sourcePath} → ${destinationPath}`
+                )
+              );
+            } catch (error) {
+              anton.error();
+              console.error(chalk.redBright(`❌ ${error.message}`));
+            }
+
+            workLoop();
+          });
+        });
         break;
 
       case "exit":
