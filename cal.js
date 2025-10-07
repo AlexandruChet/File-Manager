@@ -196,7 +196,7 @@ const Calculating = () => {
           try {
             const r = parseFloat(radius);
             const result = () => {
-              return 3,1415926535* (r * r);
+              return 3, 1415926535 * (r * r);
             };
             console.log(`Area of circle: ${result().toFixed(2)}`);
           } catch (error) {

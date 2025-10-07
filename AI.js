@@ -140,10 +140,12 @@ const workLoop = () => {
           searchFile: "searches your file",
           write: "overwrites the contents of the file",
           writeAppendFile: "written at the end of the file",
+          readLines: "show a number of lines from a file",
           launch: "launch file",
           delete: "deleted file",
           deleteDir: "delete dir",
           show: "show file content",
+          move: "move a file to another folder",
           ls: "list files and folders",
           rewrite: "rewrite the name",
           serverFile: "automatically starts a server on Node.js",
@@ -361,6 +363,39 @@ const workLoop = () => {
         });
         break;
 
+      case "readLines":
+        anton.info("Read specific number of lines from file");
+        rl.question("Enter file path: ", (filePath) => {
+          rl.question(
+            "How many lines to read? (press Enter for all): ",
+            async (count) => {
+              try {
+                const data = await fs.readFile(filePath, "utf-8");
+                const lines = data.split("\n");
+                const numberOfLines = lines.length;
+
+                console.log(`📄 Total lines in file: ${numberOfLines}`);
+
+                if (count && !isNaN(count)) {
+                  const limit = Math.min(Number(count), numberOfLines);
+                  console.log(`\n🧾 Showing first ${limit} lines:\n`);
+                  console.log(lines.slice(0, limit).join("\n"));
+                } else {
+                  console.log("\n🧾 File content:\n");
+                  console.log(data);
+                }
+
+                anton.success("✅ Reading completed successfully!");
+              } catch (error) {
+                anton.error("❌ Failed to read file");
+                console.error(error.message);
+              }
+              workLoop();
+            }
+          );
+        });
+        break;
+
       case "launch":
         anton.info();
         rl.question("Write file name (only .js): ", async (url) => {
@@ -434,6 +469,31 @@ const workLoop = () => {
             workLoop();
           }
         );
+        break;
+
+      case "move":
+        anton.info();
+        rl.question("Enter path to source file/folder: ", (source) => {
+          rl.question("Enter new destination path: ", async (destination) => {
+            try {
+              await fs.access(source);
+
+              const destDir = path.dirname(destination);
+              await fs.mkdir(destDir, { recursive: true });
+
+              await fs.rename(source, destination);
+
+              anton.success(
+                `✅ Moved successfully:\nFrom: ${source}\nTo:   ${destination}`
+              );
+            } catch (error) {
+              anton.error();
+              console.log("❌ Failed to move file or directory");
+              console.error(error.message);
+            }
+            workLoop();
+          });
+        });
         break;
 
       case "ls":
