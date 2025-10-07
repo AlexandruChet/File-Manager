@@ -4,6 +4,7 @@ const readline = require("node:readline");
 const crypto = require("crypto");
 const chalk = require("chalk");
 const { exec } = require("child_process");
+const { execSync } = require("node:child_process");
 const { isUtf8 } = require("node:buffer");
 const { pipeline } = require("node:stream");
 const { promisify } = require("node:util");
@@ -161,6 +162,7 @@ const workLoop = () => {
           fileWeight: "show file weight",
           compress: "compress file",
           renameExt: "renaming ext file",
+          git: "push new update",
           exit: "close program",
         };
 
@@ -907,6 +909,50 @@ console.log(\`Server running at http://127.0.0.1:\${PORT}\`);
               } catch (error) {
                 anton.error();
                 console.error(error);
+              }
+              workLoop();
+            }
+          );
+        });
+        break;
+
+      case "git":
+        anton.info();
+        rl.question("Write a commit message: ", (commit) => {
+          rl.question(
+            'Type "push" (for default) or "push main" (to push to main branch): ',
+            async (push) => {
+              try {
+                if (!fs.existsSync(".git")) {
+                  anton.error();
+                  console.error("❌ This folder is not a Git repository.");
+                  return workLoop();
+                }
+
+                console.log("🟡 Adding files...");
+                execSync("git add .", { stdio: "inherit" });
+
+                console.log("🟡 Committing...");
+                execSync(`git commit -m "${commit}"`, { stdio: "inherit" });
+
+                if (push === "push") {
+                  console.log("🟢 Pushing to default branch...");
+                  execSync("git push", { stdio: "inherit" });
+                } else if (push === "push main" || push === "push to main") {
+                  console.log("🟢 Pushing to origin/main...");
+                  execSync("git push origin main", { stdio: "inherit" });
+                } else {
+                  anton.error();
+                  console.error(
+                    "❌ Unknown push option. Use 'push' or 'push main'."
+                  );
+                }
+
+                anton.success();
+                console.log("✅ Git update complete!");
+              } catch (error) {
+                anton.error();
+                console.error("❌ Git error:", error.message);
               }
               workLoop();
             }
