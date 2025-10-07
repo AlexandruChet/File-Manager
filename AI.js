@@ -146,6 +146,7 @@ const workLoop = () => {
           ls: "list files and folders",
           rewrite: "rewrite the name",
           serverFile: "automatically starts a server on Node.js",
+          basicServer: "Basic server on node js",
           about:
             "the file itself is a list of commands and a simulation AI that helps you",
           cd: "change directory",
@@ -159,6 +160,7 @@ const workLoop = () => {
           open: "open your file in vs code or another program",
           fileWeight: "show file weight",
           compress: "compress file",
+          renameExt: "renaming ext file",
           exit: "close program",
         };
 
@@ -490,6 +492,79 @@ const workLoop = () => {
         });
         break;
 
+      case "basicServer":
+        anton.info();
+        rl.question("Write your file name: ", (fileNamePath) => {
+          rl.question(
+            "Write your static folder name: ",
+            async (staticFolder) => {
+              try {
+                await fs.promises.writeFile(
+                  fileNamePath,
+                  `
+const http = require("node:http");
+const path = require("node:path");
+const fs = require("node:fs");
+
+const PORT = 8000;
+
+const STATIC_PATH = path.join(process.cwd(), "./${staticFolder}");
+
+const MIME_TYPES = {
+  html: "text/html; charset=UTF-8",
+  css: "text/css",
+  js: "text/javascript",
+  json: "application/json",
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  svg: "image/svg+xml",
+  default: "text/plain",
+};
+
+const prepareFile = async (url) => {
+  const paths = [STATIC_PATH, url];
+  if (url.endsWith("/")) paths.push("index.html");
+  const filePath = path.join(...paths);
+
+  const pathTraversal = !filePath.startsWith(STATIC_PATH);
+  const exists = await fs.promises.access(filePath)
+    .then(() => true)
+    .catch(() => false);
+
+  const found = !pathTraversal && exists;
+  const streamPath = found ? filePath : path.join(STATIC_PATH, "404.html");
+  const ext = path.extname(streamPath).substring(1).toLowerCase();
+  const stream = fs.createReadStream(streamPath);
+
+  return { found, ext, stream };
+};
+
+http.createServer(async (req, res) => {
+  const file = await prepareFile(req.url);
+  const statusCode = file.found ? 200 : 404;
+  const mimeType = MIME_TYPES[file.ext] || MIME_TYPES.default;
+
+  res.writeHead(statusCode, { "Content-Type": mimeType });
+  file.stream.pipe(res);
+
+  console.log(\`\${req.method} \${req.url} \${statusCode}\`);
+}).listen(PORT);
+
+console.log(\`Server running at http://127.0.0.1:\${PORT}\`);
+          `
+                );
+                anton.success();
+              } catch (error) {
+                anton.error();
+                console.error(error);
+              }
+              workLoop();
+            }
+          );
+        });
+        break;
+
       case "about":
         anton.greeting();
         console.log(
@@ -806,6 +881,36 @@ const workLoop = () => {
             }
             workLoop();
           });
+        });
+        break;
+
+      case "renameExt":
+        rl.question("Write your file name (with extension): ", (fileName) => {
+          rl.question(
+            "Write your new extension (for example: .js or js): ",
+            async (newExt) => {
+              try {
+                if (!newExt.startsWith(".")) newExt = "." + newExt;
+
+                const baseName = path.basename(
+                  fileName,
+                  path.extname(fileName)
+                );
+                const dirName = path.dirname(fileName);
+
+                const newFilePath = path.join(dirName, baseName + newExt);
+                await fs.promises.access(fileName);
+
+                await fs.promises.rename(fileName, newFilePath);
+                anton.success();
+                console.log(`File renamed: ${fileName} → ${newFilePath}`);
+              } catch (error) {
+                anton.error();
+                console.error(error);
+              }
+              workLoop();
+            }
+          );
         });
         break;
 
