@@ -21,6 +21,7 @@ ${chalk.bold.yellow("📘 Available commands:")}
   ${chalk.cyan("u")}     → Circle circumference (2πr)
   ${chalk.green("r")}     → Random number (min–max)
   ${chalk.green("%")}     → Percent for
+  ${chalk.green("A")}     → A in math circle
   ${chalk.blue("time")}  → Show current time and date
   ${chalk.blue("clear")} → Clear console
   ${chalk.gray("help")}  → Show this menu
@@ -188,6 +189,21 @@ const Calculating = () => {
             }
           }
         );
+        break;
+
+      case "A":
+        rl.question("Write your radius: ", async (radius) => {
+          try {
+            const r = parseFloat(radius);
+            const result = () => {
+              return 3,1415926535* (r * r);
+            };
+            console.log(`Area of circle: ${result().toFixed(2)}`);
+          } catch (error) {
+            console.error(error);
+          }
+          Calculating();
+        });
         break;
 
       case "clear":
