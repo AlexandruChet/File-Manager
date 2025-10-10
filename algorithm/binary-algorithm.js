@@ -16,5 +16,5 @@ var sortedNumbers = [2, 5, 7, 8, 11, 12, 50, 89, 99, 23, 90].sort(function (
 ) {
   return a - b;
 });
-var foundIndexInSorted = binarySearchFn(sortedNumbers, 11);
+var foundIndexInSorted = binarySearchFn(sortedNumbers, 12);
 console.log(foundIndexInSorted);

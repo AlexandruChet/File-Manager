@@ -17,5 +17,5 @@ const binarySearchFn = (array: number[], target: number): number => {
 const sortedNumbers = [2, 5, 7, 8, 11, 12, 50, 89, 99, 23, 90].sort(
   (a, b) => a - b
 );
-const foundIndexInSorted = binarySearchFn(sortedNumbers, 11);
+const foundIndexInSorted = binarySearchFn(sortedNumbers, 12);
 console.log(foundIndexInSorted);
