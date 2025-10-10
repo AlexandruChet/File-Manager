@@ -46,6 +46,47 @@ function Timer() {
           });
         });
         break;
+
+      case "stopwatch":
+        rl.question(
+          "Start the stopwatch with the 'start' command: ",
+          (start: string) => {
+            if (start.trim().toLowerCase() === "start") {
+              let time: number = 0;
+              let isRunning = true;
+
+              console.log("⏱ Stopwatch started! Type 'stop' to stop.");
+
+              const interval: NodeJS.Timeout = setInterval(() => {
+                if (isRunning) {
+                  time++;
+                  console.clear();
+                  console.log(`⏱ Time: ${time} seconds`);
+                }
+              }, 1000);
+
+              rl.question(
+                "Type 'stop' to stop the stopwatch: ",
+                (stop: string) => {
+                  if (stop.trim().toLowerCase() === "stop") {
+                    isRunning = false;
+                    clearInterval(interval);
+                    console.log(`🛑 Stopwatch stopped at ${time} seconds.`);
+                    Timer();
+                  }
+                }
+              );
+            } else {
+              console.log("❌ You must type 'start' to begin the stopwatch.");
+              Timer();
+            }
+          }
+        );
+        break;
+
+      default:
+        console.log("Unknown command.");
+        Timer();
     }
   });
 }
