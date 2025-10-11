@@ -29,7 +29,7 @@ form.addEventListener("submit", async (event) => {
   const formData = new FormData(form);
 
   try {
-    const response = await fetch("/submit-password", {
+    const response = await fetch("http://localhost:3001/submit-password", {
       method: "POST",
       body: formData,
     });
