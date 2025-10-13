@@ -24,7 +24,7 @@ const prepareFile = async (url) => {
   if (url.endsWith("/")) paths.push("index.html");
   const filePath = path.join(...paths);
   const pathTraversal = !filePath.startsWith(STATIC_PATH);
-  const exists = await fs.promises.access(filePath).then(...toBool);
+  const exists = await fs.promises.access(filePath).then(toBool[0], toBool[1]);
   const found = !pathTraversal && exists;
   const streamPath = found ? filePath : path.join(STATIC_PATH, "404.html");
   const ext = paths.extname(streamPath).substring(1).toLowerCase();
