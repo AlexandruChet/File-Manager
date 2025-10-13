@@ -15,7 +15,8 @@
     "chalk": "^4.1.2",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "helmet": "^8.1.0"
+    "helmet": "^8.1.0",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "@types/node": "^24.7.1"
